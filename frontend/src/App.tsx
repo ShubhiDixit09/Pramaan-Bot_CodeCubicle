@@ -4,7 +4,7 @@ import {
   Database, ExternalLink, Eye, FileCheck2, FileSearch, Filter, Fingerprint,
   GitCompareArrows, GitFork, Globe2, History, Inbox, Layers3, LayoutDashboard,
   Menu, Network, PanelLeftClose, Play, Plus, Radar, RefreshCw, Search, Send,
-  Settings2, ShieldCheck, Sparkles, Table2, TerminalSquare, Workflow, X, Zap,
+  Scale, Settings2, ShieldCheck, Sparkles, Table2, TerminalSquare, Workflow, X, Zap,
 } from 'lucide-react'
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -20,13 +20,15 @@ const nav = [
   { to: '/changes', label: 'Change intelligence', icon: GitCompareArrows },
   { to: '/reviews', label: 'Review queue', icon: Inbox, badge: 4 },
   { to: '/sources', label: 'Source network', icon: Network },
-  { to: '/legal-radar', label: 'Legal radar', icon: Radar },
+  { to: '/nyaya', label: 'NyayaBot legal desk', icon: Scale },
+  { to: '/legal-radar', label: 'Legal source radar', icon: Radar },
 ]
 
 const routeNames: Record<string, string> = {
   '/': 'Command center', '/missions/new': 'New mission', '/missions': 'Missions',
   '/dataset': 'Dataset explorer', '/changes': 'Change intelligence', '/reviews': 'Review queue',
   '/sources': 'Source network', '/legal-radar': 'Legal radar',
+  '/nyaya': 'NyayaBot legal desk',
 }
 
 function Mark() {
@@ -263,6 +265,78 @@ function SourcesPage() {
   </>
 }
 
+const nyayaCapabilities = [
+  { id: 'analysis', label: 'Matter analysis', icon: Bot },
+  { id: 'research', label: 'Legal research', icon: BookOpen },
+  { id: 'procedure', label: 'Action procedures', icon: Workflow },
+  { id: 'drafting', label: 'Document drafting', icon: FileCheck2 },
+  { id: 'trust', label: 'Trust & citations', icon: ShieldCheck },
+]
+
+function NyayaPage() {
+  const [active, setActive] = useState('analysis')
+  const [matter, setMatter] = useState('My landlord is asking me to vacate immediately without written notice and is refusing to return my security deposit.')
+  const [analysed, setAnalysed] = useState(false)
+
+  const runAnalysis = (event: FormEvent) => {
+    event.preventDefault()
+    setAnalysed(true)
+  }
+
+  return <>
+    <PageIntro
+      index="08"
+      eyebrow="Specialist intelligence / Indian law"
+      title="NyayaBot stays. CodeCubicle makes it stronger."
+      description="The original legal-action engine remains a complete specialist workspace—now backed by CodeCubicle’s source collection, evidence graph, change monitoring and versioned datasets."
+      actions={<span className="nyaya-reserved"><Scale size={15} /> Reserved specialist module</span>}
+    />
+
+    <section className="nyaya-banner">
+      <div className="nyaya-identity"><div className="nyaya-seal"><Scale size={26} /></div><div><span>NYAYABOT / LEGAL DESK</span><strong>Citizen legal intelligence with inspectable evidence.</strong></div></div>
+      <div className="nyaya-system"><span><i /> India Code connector</span><span><i /> Local privacy boundary</span><span><i /> Citation verifier ready</span></div>
+    </section>
+
+    <div className="nyaya-tabs">
+      {nyayaCapabilities.map(({ id, label, icon: Icon }) => <button className={active === id ? 'active' : ''} key={id} onClick={() => setActive(id)}><Icon size={15} />{label}</button>)}
+    </div>
+
+    {active === 'analysis' && <div className="nyaya-workspace">
+      <section className="surface nyaya-intake">
+        <div className="surface-head"><div><span className="eyebrow">01 / Describe the matter</span><h2>Private case intake</h2></div><span className="privacy-signal"><ShieldCheck size={13} /> Local-first</span></div>
+        <form onSubmit={runAnalysis}>
+          <label>What happened?</label>
+          <textarea value={matter} onChange={(event) => setMatter(event.target.value)} />
+          <div className="intake-grid"><label><span>Jurisdiction</span><select defaultValue="Delhi"><option>Delhi</option><option>Rajasthan</option><option>Haryana</option><option>Other / determine automatically</option></select></label><label><span>Language</span><select defaultValue="Hinglish"><option>English</option><option>Hindi</option><option>Hinglish</option></select></label></div>
+          <button className="primary-btn"><Sparkles size={15} /> Analyse rights & next actions</button>
+        </form>
+        <div className="pii-boundary"><Fingerprint size={16} /><div><strong>PII protection boundary</strong><span>Configured identifiers are masked before model processing.</span></div></div>
+      </section>
+
+      <section className="surface nyaya-analysis">
+        <div className="surface-head"><div><span className="eyebrow">02 / Grounded analysis</span><h2>{analysed ? 'Tenant rights · deposit dispute' : 'Ready for analysis'}</h2></div>{analysed && <span className="confidence-chip">92% grounded</span>}</div>
+        {!analysed ? <div className="nyaya-empty"><Scale size={29} /><strong>No disposable chatbot answer.</strong><p>NyayaBot will create a persistent matter record, retrieve relevant law, attach evidence and generate a resumable action path.</p></div> : <div className="legal-output">
+          <div className="issue-strip"><span>Detected issue</span><strong>Tenancy · notice and security deposit</strong><em>High confidence</em></div>
+          <div className="legal-guidance"><h3>What this means</h3><p>An immediate verbal demand does not by itself establish the required legal process. The applicable notice period and deposit remedy depend on the tenancy terms and the governing state law. Preserve the agreement, payment records and written communications before taking action.</p></div>
+          <div className="statute-links"><div><BookOpen size={16} /><p><strong>Transfer of Property Act, 1882</strong><span>Section 106 · duration and termination of certain leases</span></p><button><Eye size={14} /> Evidence</button></div><div><BookOpen size={16} /><p><strong>Indian Contract Act, 1872</strong><span>Agreement and recovery principles · verify against matter facts</span></p><button><Eye size={14} /> Evidence</button></div></div>
+          <div className="legal-disclaimer"><AlertTriangle size={14} /> General legal information, not a substitute for advice from a qualified advocate. Current local law and the tenancy agreement must be verified.</div>
+        </div>}
+      </section>
+
+      <aside className="surface nyaya-actions">
+        <div className="surface-head"><div><span className="eyebrow">03 / Action path</span><h2>Resumable procedure</h2></div></div>
+        <div className="procedure-track">{[['Capture facts', true], ['Secure evidence', analysed], ['Send written response', false], ['Draft legal notice', false], ['Escalate if required', false]].map(([label, complete], index) => <div className={complete ? 'complete' : ''} key={String(label)}><span>{complete ? <Check size={13} /> : index + 1}</span><strong>{String(label)}</strong></div>)}</div>
+        <button className="wide-link"><Workflow size={14} /> Open full action guide</button>
+      </aside>
+    </div>}
+
+    {active === 'research' && <section className="surface nyaya-feature-panel"><BookOpen size={30} /><div><span className="eyebrow">NyayaBot legal research</span><h2>Search statutes, sections, rules and notifications.</h2><p>Run hierarchy-aware retrieval across India Code and approved legal sources, then save every selected provision into the matter evidence graph.</p><Link className="primary-btn" to="/legal-radar">Open official-source research <ArrowRight size={14} /></Link></div></section>}
+    {active === 'procedure' && <section className="surface nyaya-feature-panel"><Workflow size={30} /><div><span className="eyebrow">NyayaBot action procedures</span><h2>Turn legal information into a resumable path.</h2><p>Consumer complaint, RTI, police complaint and matter-specific procedures preserve progress, deadlines, authority details and required documents.</p><button className="primary-btn">Browse action procedures</button></div></section>}
+    {active === 'drafting' && <section className="surface nyaya-feature-panel"><FileCheck2 size={30} /><div><span className="eyebrow">NyayaBot document drafting</span><h2>Fact-bound documents, not generic templates.</h2><p>Create legal notices, RTI applications, police complaints and consumer complaints from verified matter facts, with version history and PDF export.</p><button className="primary-btn">Start a verified draft</button></div></section>}
+    {active === 'trust' && <section className="nyaya-trust-grid"><div className="surface nyaya-feature-panel"><ShieldCheck size={30} /><div><span className="eyebrow">NyayaBot trust report</span><h2>Every answer is inspected before it reaches the citizen.</h2><p>Citation coverage, grounding, PII safety, disclaimer checks and conflicting evidence remain visible—not hidden behind one confidence number.</p></div></div><div className="surface trust-score"><CoverageRing value={92} /><div><span>Current grounding target</span><strong>92 / 100</strong><small>Official sources weighted highest</small></div></div></section>}
+  </>
+}
+
 function LegalRadarPage() {
   const [query, setQuery] = useState('consumer protection')
   const [busy, setBusy] = useState(false)
@@ -270,7 +344,7 @@ function LegalRadarPage() {
   const [live, setLive] = useState(false)
   const [results, setResults] = useState<Array<Record<string, string | number>>>([])
   const search = async (event: FormEvent) => { event.preventDefault(); setBusy(true); const response = await api.legalSearch(query); setResults(response.results); setLive(response.live); setSearched(true); setBusy(false) }
-  return <><PageIntro index="08" eyebrow="Specialist workspace / India" title="Law, as living evidence." description="Query the official India Code index directly. Legal intelligence is the first specialist lens on top of CodeCubicle’s general evidence engine." />
+  return <><PageIntro index="09" eyebrow="Specialist workspace / India" title="Law, as living evidence." description="Query the official India Code index directly. Legal intelligence is the first specialist lens on top of CodeCubicle’s general evidence engine." />
     <div className="legal-hero"><div><span className="legal-kicker"><BookOpen size={16} /> Official legislation discovery</span><h2>Search the law. Keep the lineage.</h2><p>Results resolve to India Code, an official Government of India source. Discovery results remain separate from verified evidence until fetched and snapshotted.</p><form onSubmit={search}><Search size={20} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Try: data protection, consumer rights, mediation…" /><button disabled={busy}>{busy ? 'Searching…' : 'Search India Code'}</button></form><div className="legal-trust"><span><ShieldCheck size={14} /> Official domain only</span><span><Fingerprint size={14} /> Snapshot on import</span><span><GitCompareArrows size={14} /> Amendment-aware</span></div></div><div className="law-visual"><div className="law-number">100</div><span>authority score</span><i /><p>Ministry of Law & Justice<br />National Informatics Centre</p></div></div>
     {searched && <section className="surface legal-results"><div className="surface-head"><div><span className="eyebrow">Search results</span><h2>{results.length ? `${results.length} official records found` : 'Official connector response'}</h2></div><span className={`live-state ${live ? 'on' : ''}`}><i />{live ? 'Live source' : 'Source unavailable — no records invented'}</span></div>{results.length ? results.map((result, index) => <article className="law-result" key={index}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{String(result.title || 'Official record')}</strong><p>Act no. {String(result.act_number || '—')} · Enacted {String(result.enactment_date || '—')}</p></div><em>Authority 100</em><a href={String(result.official_url)} target="_blank" rel="noreferrer">Open official <ExternalLink size={14} /></a></article>) : <div className="connector-empty"><Network size={26} /><div><strong>The official source could not be read in this environment.</strong><p>CodeCubicle failed closed: it did not substitute generated or unverified legal records. Retry when network access is available.</p></div></div>}</section>}
   </>
@@ -285,10 +359,10 @@ function App() {
     <Route path="/changes" element={<ChangesPage />} />
     <Route path="/reviews" element={<ReviewsPage />} />
     <Route path="/sources" element={<SourcesPage />} />
+    <Route path="/nyaya" element={<NyayaPage />} />
     <Route path="/legal-radar" element={<LegalRadarPage />} />
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes></Shell>
 }
 
 export default App
-

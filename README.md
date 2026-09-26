@@ -16,6 +16,12 @@ The initial vertical is Indian legal and public-sector intelligence because it m
 authority, freshness, disagreement, and provenance impossible to hand-wave. The core
 engine remains domain-independent.
 
+NyayaBot is preserved inside CodeCubicle as the dedicated Indian legal-intelligence
+desk. Its case analysis, statutory research, resumable procedures, verified drafting,
+privacy boundary, citation checks, and trust reports remain product capabilities;
+CodeCubicle adds continuous collection, evidence graphs, change monitoring, and living
+datasets around them.
+
 ## What this first cut contains
 
 - a distinctive React command-center interface;
@@ -49,4 +55,3 @@ Search results are discovery hints, not evidence. A value becomes publishable on
 after it is tied to a fetched source snapshot. Every displayed field can expose its
 authority, freshness, extraction method, confidence components, exact locator, and
 conflicting observations.
-
