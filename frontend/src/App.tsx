@@ -9,7 +9,6 @@ import {
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { api } from './api'
-import { changes as demoChanges, evidence as demoEvidence, events as demoEvents, missions as demoMissions, records as demoRecords, reviews as demoReviews, sources as demoSources } from './demo'
 import type { Change, Evidence, Mission, RecordRow, Review, RunEvent, Source } from './types'
 
 const nav = [
@@ -56,7 +55,7 @@ function Shell({ children }: { children: ReactNode }) {
         <div className="rail-bottom">
           <div className="engine-card">
             <div className="engine-orbit"><CircleDot size={14} /></div>
-            <div><strong>Collection service</strong><span>5 connectors · available</span></div>
+            <div><strong>Collection service</strong><span>1 connector · pending live check</span></div>
           </div>
           <button className="rail-link"><Settings2 size={17} /> Workspace settings</button>
           <div className="profile"><span>SD</span><div><strong>Shubhi</strong><small>Builder workspace</small></div><ChevronRight size={15} /></div>
@@ -105,18 +104,18 @@ function CoverageRing({ value, size = 'large' }: { value: number; size?: 'large'
 }
 
 function CommandCenter() {
-  const [missions, setMissions] = useState<Mission[]>(demoMissions)
-  const [events, setEvents] = useState<RunEvent[]>(demoEvents)
-  const [metrics, setMetrics] = useState({ active_missions: 12, sources_monitored: 183, changes_today: 27, open_conflicts: 4, coverage: 93 })
+  const [missions, setMissions] = useState<Mission[]>([])
+  const [events, setEvents] = useState<RunEvent[]>([])
+  const [metrics, setMetrics] = useState({ active_missions: 0, sources_monitored: 0, changes_today: 0, open_conflicts: 0, coverage: 0 })
   useEffect(() => { api.overview().then((result) => { setMissions(result.missions); setEvents(result.events); setMetrics(result.metrics as typeof metrics) }) }, [])
   return <>
     <PageIntro index="01" eyebrow="Live register" title="Current operations" description="Collections in progress, newly recorded changes, incomplete fields and decisions waiting for review." actions={<><button className="ghost-btn"><History size={16} /> Last 24 hours</button><Link to="/missions/new" className="primary-btn"><Plus size={16} /> Start collection</Link></>} />
     <section className="metrics-grid">
-      <Metric label="Active collections" value={metrics.active_missions} note="3 running now" tone="cobalt" icon={Activity} />
-      <Metric label="Sources monitored" value={metrics.sources_monitored} note="98.4% healthy" tone="ink" icon={Globe2} />
-      <Metric label="Changes today" value={metrics.changes_today} note="6 high impact" tone="orange" icon={Zap} />
-      <Metric label="Open conflicts" value={metrics.open_conflicts} note="2 need review" tone="red" icon={AlertTriangle} />
-      <Metric label="Data coverage" value={metrics.coverage} suffix="%" note="+4.2% this week" tone="lime" icon={BadgeCheck} />
+      <Metric label="Active collections" value={metrics.active_missions} note="Verified runtime state" tone="cobalt" icon={Activity} />
+      <Metric label="Sources monitored" value={metrics.sources_monitored} note="No monitoring claimed yet" tone="ink" icon={Globe2} />
+      <Metric label="Changes today" value={metrics.changes_today} note="Evidence-backed only" tone="orange" icon={Zap} />
+      <Metric label="Open conflicts" value={metrics.open_conflicts} note="No verified conflicts" tone="red" icon={AlertTriangle} />
+      <Metric label="Data coverage" value={metrics.coverage} suffix="%" note="Starts after first valid run" tone="lime" icon={BadgeCheck} />
     </section>
     <div className="command-grid">
       <section className="surface active-collections">
@@ -145,16 +144,15 @@ function CommandCenter() {
     </div>
     <div className="lower-grid">
       <section className="surface coverage-panel">
-        <div className="surface-head"><div><span className="eyebrow">Coverage intelligence</span><h2>Where the dataset is still thin</h2></div><span className="version-chip">DATASET v18</span></div>
-        <div className="coverage-content"><CoverageRing value={89} /><div className="field-bars">
-          {[['Organisation', 100], ['Official source', 100], ['Deadline', 96], ['Eligibility', 88], ['Location', 82], ['Funding / value', 61]].map(([name, value]) => <div className="field-bar" key={name}><div><span>{name}</span><strong>{value}%</strong></div><i><b style={{ width: `${value}%` }} /></i></div>)}
+        <div className="surface-head"><div><span className="eyebrow">Coverage intelligence</span><h2>Where the dataset is still thin</h2></div><span className="version-chip">NO VERIFIED DATASET</span></div>
+        <div className="coverage-content"><CoverageRing value={0} /><div className="field-bars">
+          {[['Organisation', 0], ['Official source', 0], ['Deadline', 0], ['Eligibility', 0], ['Location', 0], ['Funding / value', 0]].map(([name, value]) => <div className="field-bar" key={name}><div><span>{name}</span><strong>{value}%</strong></div><i><b style={{ width: `${value}%` }} /></i></div>)}
         </div></div>
-        <div className="coverage-action"><Zap size={17} /><div><strong>Funding coverage is below target</strong><span>Enrichment pass prepared for 16 incomplete records.</span></div><button>Run enrichment <ArrowRight size={15} /></button></div>
+        <div className="coverage-action"><Zap size={17} /><div><strong>Waiting for the first verified collection</strong><span>Coverage is calculated only from source-backed records.</span></div><button>Configure sources <ArrowRight size={15} /></button></div>
       </section>
       <section className="surface attention-panel">
-        <div className="surface-head"><div><span className="eyebrow">Needs judgment</span><h2>Review queue</h2></div><span className="count-badge">4 open</span></div>
-        <div className="attention-item high"><AlertTriangle size={18} /><div><strong>Conflicting procurement value</strong><span>Official corrigendum vs portal listing</span></div><em>68%</em></div>
-        <div className="attention-item"><FileSearch size={18} /><div><strong>Possible source removal</strong><span>Deletion grace policy is active</span></div><em>54%</em></div>
+        <div className="surface-head"><div><span className="eyebrow">Needs judgment</span><h2>Review queue</h2></div><span className="count-badge">0 open</span></div>
+        <div className="attention-item"><FileSearch size={18} /><div><strong>No verified review items</strong><span>Conflicts will appear after live collection.</span></div><em>—</em></div>
         <Link to="/reviews" className="wide-link">Open decision desk <ArrowRight size={15} /></Link>
       </section>
     </div>
@@ -201,7 +199,7 @@ function MissionBuilder() {
 }
 
 function MissionsPage() {
-  const [items, setItems] = useState(demoMissions)
+  const [items, setItems] = useState<Mission[]>([])
   useEffect(() => { api.missions().then(setItems) }, [])
   return <><PageIntro index="03" eyebrow="Programme register" title="Collection programmes" description="Saved specifications with their source lists, run history, decisions and versioned output." actions={<Link className="primary-btn" to="/missions/new"><Plus size={16} /> New collection</Link>} />
     <div className="mission-cards">{items.map((mission, i) => <article className="mission-card" key={mission.id}><div className="mission-card-top"><span>{String(i + 1).padStart(2, '0')}</span><div className={`status-label ${mission.status}`}><i />{mission.status}</div><button>•••</button></div><h2>{mission.name}</h2><p>{mission.prompt}</p><div className="mission-card-stats"><div><span>Coverage</span><strong>{mission.coverage}%</strong></div><div><span>Records</span><strong>{mission.record_count}</strong></div><div><span>Changes</span><strong>{mission.change_count}</strong></div></div><div className="mission-card-foot"><span><Clock3 size={14} />{mission.cadence}</span><button>Open mission <ArrowRight size={14} /></button></div></article>)}</div></>
@@ -219,7 +217,7 @@ function EvidenceDrawer({ record, data, onClose }: { record: RecordRow; data: Ev
 }
 
 function DatasetPage() {
-  const [rows, setRows] = useState<RecordRow[]>(demoRecords)
+  const [rows, setRows] = useState<RecordRow[]>([])
   const [query, setQuery] = useState('')
   const [changedOnly, setChangedOnly] = useState(false)
   const [selected, setSelected] = useState<RecordRow | null>(null)
@@ -227,28 +225,28 @@ function DatasetPage() {
   useEffect(() => { api.records().then((result) => setRows(result.records)) }, [])
   const filtered = useMemo(() => rows.filter((row) => (!changedOnly || row.changed) && (!query || Object.values(row).join(' ').toLowerCase().includes(query.toLowerCase()))), [rows, query, changedOnly])
   const inspect = async (row: RecordRow) => { setSelected(row); setEv(await api.evidence(row.id)) }
-  return <><PageIntro index="04" eyebrow="Record register / Version 18" title="Working dataset" description="Search and export accepted records. Open any changed value to inspect its source, extraction and decision history." actions={<><button className="ghost-btn"><History size={16} /> v18 <ChevronDown size={14} /></button><button className="primary-btn"><Database size={16} /> Export records</button></>} />
-    <section className="dataset-summary"><div><span>Dataset</span><strong>India AI Opportunity Radar</strong></div><div><span>Published</span><strong>26 Sep 2026 · 21:04</strong></div><div><span>Records</span><strong>42 canonical</strong></div><div><span>Coverage</span><strong>89%</strong></div><div><span>Delta</span><strong className="orange-text">+3 / Δ7</strong></div></section>
+  return <><PageIntro index="04" eyebrow="Record register / Unpublished" title="Working dataset" description="Search and export accepted records. Open any changed value to inspect its source, extraction and decision history." actions={<><button className="ghost-btn"><History size={16} /> v0 <ChevronDown size={14} /></button><button className="primary-btn"><Database size={16} /> Export records</button></>} />
+    <section className="dataset-summary"><div><span>Dataset</span><strong>India AI Opportunity Radar</strong></div><div><span>Published</span><strong>Not yet</strong></div><div><span>Records</span><strong>{rows.length} verified</strong></div><div><span>Coverage</span><strong>0%</strong></div><div><span>Delta</span><strong className="orange-text">—</strong></div></section>
     <section className="surface dataset-surface"><div className="dataset-tools"><label className="table-search"><Search size={16} /><input placeholder="Search records, fields or organisations…" value={query} onChange={(e) => setQuery(e.target.value)} /></label><button className={`tool-toggle ${changedOnly ? 'active' : ''}`} onClick={() => setChangedOnly(!changedOnly)}><Zap size={15} /> Changed only</button><button className="tool-toggle"><Filter size={15} /> Filter</button><button className="tool-toggle"><PanelLeftClose size={15} /> Columns</button><span>{filtered.length} visible</span></div>
       <div className="data-table-wrap"><table className="data-table"><thead><tr><th>Organisation</th><th>Opportunity</th><th>Deadline</th><th>Value</th><th>Location</th><th>Status</th><th>Evidence</th><th /></tr></thead><tbody>{filtered.map((row) => <tr key={row.id} onClick={() => inspect(row)}><td><strong>{row.organisation}</strong></td><td><span className="opportunity-cell">{row.opportunity}{row.changed && <Zap size={12} />}</span></td><td><span className={row.id === 'rec-001' ? 'changed-cell' : ''}>{row.deadline}</span></td><td>{row.value}</td><td>{row.location}</td><td><span className={`record-status ${row.status.toLowerCase()}`}>{row.status}</span></td><td><span className={`confidence ${row.confidence < 75 ? 'low' : ''}`}>{row.confidence}%</span><small>{row.sources} src</small></td><td><button className="inspect-button"><Eye size={16} /></button></td></tr>)}</tbody></table></div>
-      <div className="table-foot"><span>Showing {filtered.length} of 42 records</span><div><button disabled>Previous</button><button className="current">1</button><button>2</button><button>3</button><button>Next</button></div></div>
+      <div className="table-foot"><span>Showing {filtered.length} of {rows.length} verified records</span><div><button disabled>Previous</button><button className="current">1</button><button disabled>Next</button></div></div>
     </section>
     {selected && ev && <EvidenceDrawer record={selected} data={ev} onClose={() => { setSelected(null); setEv(null) }} />}
   </>
 }
 
 function ChangesPage() {
-  const [items, setItems] = useState<Change[]>(demoChanges)
+  const [items, setItems] = useState<Change[]>([])
   useEffect(() => { api.changes().then(setItems) }, [])
   return <><PageIntro index="05" eyebrow="Version comparison" title="Recorded changes" description="Field-level differences between accepted versions, with the evidence that caused each revision." actions={<button className="primary-btn"><FileSearch size={16} /> Prepare daily brief</button>} />
-    <div className="change-layout"><section className="surface change-feed"><div className="surface-head"><div><span className="eyebrow">27 changes today</span><h2>Material change feed</h2></div><div className="inline-filters"><button>All impact <ChevronDown size={13} /></button><button>All missions <ChevronDown size={13} /></button></div></div>
+    <div className="change-layout"><section className="surface change-feed"><div className="surface-head"><div><span className="eyebrow">{items.length} verified changes</span><h2>Material change feed</h2></div><div className="inline-filters"><button>All impact <ChevronDown size={13} /></button><button>All missions <ChevronDown size={13} /></button></div></div>
       {items.map((item) => <article className="change-item" key={item.id}><div className={`impact-flag ${item.impact}`}><Zap size={16} /></div><div className="change-main"><div className="change-meta"><span>{item.kind.replace('_', ' ')}</span><time>{item.time}</time><em>{item.confidence}% confidence</em></div><h3>{item.title}</h3><p>{item.entity}</p><div className="diff"><span className="before">{item.before || 'No previous record'}</span><ArrowRight size={16} /><span className="after">{item.after}</span></div><div className="change-source"><FileCheck2 size={14} />{item.source}</div></div><button className="row-action"><ChevronRight size={18} /></button></article>)}
-    </section><aside className="surface time-lens"><span className="eyebrow">Time lens</span><h2>Version delta</h2><div className="version-comparison"><div><span>From</span><strong>v17</strong><small>25 Sep · 18:00</small></div><GitCompareArrows size={20} /><div><span>To</span><strong>v18</strong><small>26 Sep · 21:04</small></div></div><div className="delta-grid"><div><strong>3</strong><span>Added</span></div><div><strong>0</strong><span>Removed</span></div><div><strong>7</strong><span>Changed</span></div><div><strong>1</strong><span>Conflict</span></div></div><button className="wide-link">Compare full versions <ArrowRight size={15} /></button></aside></div>
+    </section><aside className="surface time-lens"><span className="eyebrow">Time lens</span><h2>Version delta</h2><div className="version-comparison"><div><span>From</span><strong>—</strong><small>No baseline</small></div><GitCompareArrows size={20} /><div><span>To</span><strong>v0</strong><small>Unpublished</small></div></div><div className="delta-grid"><div><strong>0</strong><span>Added</span></div><div><strong>0</strong><span>Removed</span></div><div><strong>0</strong><span>Changed</span></div><div><strong>0</strong><span>Conflict</span></div></div><button className="wide-link">Compare full versions <ArrowRight size={15} /></button></aside></div>
   </>
 }
 
 function ReviewsPage() {
-  const [items, setItems] = useState<Review[]>(demoReviews)
+  const [items, setItems] = useState<Review[]>([])
   const [done, setDone] = useState<Record<string, string>>({})
   useEffect(() => { api.reviews().then(setItems) }, [])
   return <><PageIntro index="06" eyebrow="Human review" title="Decision queue" description="Source disagreements, suspected removals and low-confidence changes remain pending until somebody decides." />
@@ -257,11 +255,11 @@ function ReviewsPage() {
 }
 
 function SourcesPage() {
-  const [items, setItems] = useState<Source[]>(demoSources)
+  const [items, setItems] = useState<Source[]>([])
   useEffect(() => { api.sources().then(setItems) }, [])
-  return <><PageIntro index="07" eyebrow="Source register" title="Sources and permissions" description="Approved endpoints, collection health, authority class and most recent successful retrieval." actions={<button className="primary-btn"><Plus size={16} /> Add source</button>} />
-    <section className="source-map"><div className="source-map-center"><Mark /><strong>Evidence graph</strong><span>1,061 snapshots</span></div>{items.slice(0, 4).map((source, i) => <div className={`source-node n${i + 1}`} key={source.id}><Globe2 size={17} /><strong>{source.name}</strong><span>{source.records} records</span></div>)}<svg viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="50" y1="50" x2="16" y2="18" /><line x1="50" y1="50" x2="84" y2="18" /><line x1="50" y1="50" x2="16" y2="82" /><line x1="50" y1="50" x2="84" y2="82" /></svg></section>
-    <section className="surface source-table-surface"><div className="surface-head"><div><span className="eyebrow">Connected sources</span><h2>Permission & health registry</h2></div><button className="ghost-btn"><RefreshCw size={15} /> Check all</button></div><div className="source-table">{items.map((source) => <div className="source-row" key={source.id}><div className="source-logo"><Globe2 size={19} /></div><div className="source-name"><strong>{source.name}</strong><span>{source.owner}</span></div><div><span>Class</span><strong>{source.type}</strong></div><div><span>Authority</span><strong>{source.authority}/100</strong></div><div><span>Collected</span><strong>{source.records}</strong></div><div><span>Last check</span><strong>{source.last_checked}</strong></div><div className={`health ${source.status}`}><i />{source.status}</div><a href={source.url} target="_blank" rel="noreferrer"><ExternalLink size={15} /></a></div>)}</div></section>
+  return <><PageIntro index="07" eyebrow="Source register" title="Sources and permissions" description="Official endpoints, their actual connector state, authority class and most recent successful retrieval." actions={<button className="primary-btn"><Plus size={16} /> Add source</button>} />
+    <section className="source-map"><div className="source-map-center"><Mark /><strong>Evidence graph</strong><span>0 verified snapshots</span></div>{items.slice(0, 4).map((source, i) => <div className={`source-node n${i + 1}`} key={source.id}><Globe2 size={17} /><strong>{source.name}</strong><span>{source.records} records</span></div>)}<svg viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="50" y1="50" x2="16" y2="18" /><line x1="50" y1="50" x2="84" y2="18" /><line x1="50" y1="50" x2="16" y2="82" /><line x1="50" y1="50" x2="84" y2="82" /></svg></section>
+    <section className="surface source-table-surface"><div className="surface-head"><div><span className="eyebrow">Source candidates</span><h2>Verification & connector registry</h2></div><button className="ghost-btn"><RefreshCw size={15} /> Check all</button></div><div className="source-table">{items.map((source) => <div className="source-row" key={source.id}><div className="source-logo"><Globe2 size={19} /></div><div className="source-name"><strong>{source.name}</strong><span>{source.verification || source.owner}</span></div><div><span>Class</span><strong>{source.authority_class || source.type}</strong></div><div><span>Connector</span><strong>{source.connector || 'none'}</strong></div><div><span>Verified records</span><strong>{source.records}</strong></div><div><span>Last success</span><strong>{source.last_checked}</strong></div><div className={`health ${source.status}`}><i />{source.status.replaceAll('_', ' ')}</div><a href={source.url} target="_blank" rel="noreferrer"><ExternalLink size={15} /></a></div>)}</div></section>
   </>
 }
 
@@ -314,12 +312,11 @@ function NyayaPage() {
       </section>
 
       <section className="surface nyaya-analysis">
-        <div className="surface-head"><div><span className="eyebrow">02 / Grounded analysis</span><h2>{analysed ? 'Tenant rights · deposit dispute' : 'Ready for analysis'}</h2></div>{analysed && <span className="confidence-chip">92% grounded</span>}</div>
+        <div className="surface-head"><div><span className="eyebrow">02 / Grounded analysis</span><h2>{analysed ? 'Source verification required' : 'Ready for analysis'}</h2></div>{analysed && <span className="confidence-chip">No verified result</span>}</div>
         {!analysed ? <div className="nyaya-empty"><Scale size={29} /><strong>No disposable chatbot answer.</strong><p>NyayaBot will create a persistent matter record, retrieve relevant law, attach evidence and generate a resumable action path.</p></div> : <div className="legal-output">
-          <div className="issue-strip"><span>Detected issue</span><strong>Tenancy · notice and security deposit</strong><em>High confidence</em></div>
-          <div className="legal-guidance"><h3>What this means</h3><p>An immediate verbal demand does not by itself establish the required legal process. The applicable notice period and deposit remedy depend on the tenancy terms and the governing state law. Preserve the agreement, payment records and written communications before taking action.</p></div>
-          <div className="statute-links"><div><BookOpen size={16} /><p><strong>Transfer of Property Act, 1882</strong><span>Section 106 · duration and termination of certain leases</span></p><button><Eye size={14} /> Evidence</button></div><div><BookOpen size={16} /><p><strong>Indian Contract Act, 1872</strong><span>Agreement and recovery principles · verify against matter facts</span></p><button><Eye size={14} /> Evidence</button></div></div>
-          <div className="legal-disclaimer"><AlertTriangle size={14} /> General legal information, not a substitute for advice from a qualified advocate. Current local law and the tenancy agreement must be verified.</div>
+          <div className="issue-strip"><span>Runtime status</span><strong>Live legal retrieval did not run</strong><em>Fail closed</em></div>
+          <div className="legal-guidance"><h3>No legal conclusion generated</h3><p>The matter was not analysed because the current build has not successfully retrieved and snapshotted the governing sources. CodeCubicle will not present a plausible-sounding legal answer as verified evidence.</p></div>
+          <div className="legal-disclaimer"><AlertTriangle size={14} /> Connect and verify India Code plus the applicable state-law source before enabling matter analysis.</div>
         </div>}
       </section>
 

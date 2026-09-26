@@ -31,8 +31,12 @@ datasets around them.
 - field-level evidence drawer;
 - semantic change feed and human review queue;
 - official-source registry and legal/public-data radar;
-- FastAPI endpoints with stable demo snapshots and a live India Code connector;
-- deterministic fallback so the judging flow works without network or an LLM.
+- FastAPI endpoints that default to verified-only data;
+- a fail-closed India Code connector currently awaiting a successful live runtime check;
+- an audited source registry that distinguishes catalogued sources from working connectors.
+
+The runtime deliberately contains no fabricated opportunities, evidence, changes, or
+health metrics. Until a connector succeeds, relevant views are empty and say so.
 
 ## Run
 
@@ -55,3 +59,6 @@ Search results are discovery hints, not evidence. A value becomes publishable on
 after it is tied to a fetched source snapshot. Every displayed field can expose its
 authority, freshness, extraction method, confidence components, exact locator, and
 conflicting observations.
+
+See [`docs/SOURCE_AUDIT.md`](docs/SOURCE_AUDIT.md) for the current source-by-source
+status and the acceptance gate every connector must pass.

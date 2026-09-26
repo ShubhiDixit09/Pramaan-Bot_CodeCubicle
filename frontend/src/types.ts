@@ -86,5 +86,8 @@ export type Source = {
   status: string
   records: number
   last_checked: string
+  authority_class?: string
+  connector?: string
+  verification?: string
+  notes?: string
 }
-

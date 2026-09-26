@@ -38,7 +38,7 @@ def health() -> dict:
     return {
         "status": "ok",
         "product": "CodeCubicle",
-        "mode": "evidence-demo",
+        "mode": "verified-only",
         "capabilities": ["missions", "datasets", "provenance", "changes", "review", "india-code"],
     }
 
@@ -47,11 +47,11 @@ def health() -> dict:
 def overview() -> dict:
     return {
         "metrics": {
-            "active_missions": 12,
-            "sources_monitored": 183,
-            "changes_today": 27,
-            "open_conflicts": 4,
-            "coverage": 93,
+            "active_missions": 0,
+            "sources_monitored": 0,
+            "changes_today": 0,
+            "open_conflicts": 0,
+            "coverage": 0,
         },
         "missions": MISSIONS,
         "events": RUN_EVENTS,
@@ -99,9 +99,10 @@ def dataset_records(
         rows = [row for row in rows if row["changed"]]
     return {
         "dataset": "India AI Opportunity Radar",
-        "version": 18,
-        "published": "26 Sep 2026, 21:04 IST",
-        "coverage": 89,
+        "version": 0,
+        "published": None,
+        "coverage": 0,
+        "data_mode": "verified_only",
         "total": len(rows),
         "records": rows,
     }
@@ -111,7 +112,7 @@ def dataset_records(
 def record_evidence(record_id: str) -> dict:
     evidence = EVIDENCE.get(record_id)
     if not evidence:
-        raise HTTPException(status_code=404, detail="No evidence fixture for this record")
+        raise HTTPException(status_code=404, detail="No verified evidence exists for this record")
     return evidence
 
 
@@ -150,4 +151,3 @@ async def legal_search(q: str = Query(min_length=2, max_length=300), limit: int 
             "results": [],
             "error": f"Official source unavailable: {type(exc).__name__}",
         }
-
