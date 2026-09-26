@@ -13,20 +13,20 @@ import { changes as demoChanges, evidence as demoEvidence, events as demoEvents,
 import type { Change, Evidence, Mission, RecordRow, Review, RunEvent, Source } from './types'
 
 const nav = [
-  { to: '/', label: 'Command center', icon: LayoutDashboard },
-  { to: '/missions/new', label: 'New mission', icon: Sparkles },
-  { to: '/missions', label: 'Missions', icon: Workflow },
-  { to: '/dataset', label: 'Dataset explorer', icon: Table2 },
-  { to: '/changes', label: 'Change intelligence', icon: GitCompareArrows },
-  { to: '/reviews', label: 'Review queue', icon: Inbox, badge: 4 },
-  { to: '/sources', label: 'Source network', icon: Network },
+  { to: '/', label: 'Operations', icon: LayoutDashboard },
+  { to: '/missions/new', label: 'New collection', icon: Sparkles },
+  { to: '/missions', label: 'Programmes', icon: Workflow },
+  { to: '/dataset', label: 'Records', icon: Table2 },
+  { to: '/changes', label: 'Change log', icon: GitCompareArrows },
+  { to: '/reviews', label: 'Decisions', icon: Inbox, badge: 4 },
+  { to: '/sources', label: 'Sources', icon: Network },
   { to: '/nyaya', label: 'NyayaBot legal desk', icon: Scale },
   { to: '/legal-radar', label: 'Legal source radar', icon: Radar },
 ]
 
 const routeNames: Record<string, string> = {
-  '/': 'Command center', '/missions/new': 'New mission', '/missions': 'Missions',
-  '/dataset': 'Dataset explorer', '/changes': 'Change intelligence', '/reviews': 'Review queue',
+  '/': 'Operations', '/missions/new': 'New collection', '/missions': 'Programmes',
+  '/dataset': 'Records', '/changes': 'Change log', '/reviews': 'Decisions',
   '/sources': 'Source network', '/legal-radar': 'Legal radar',
   '/nyaya': 'NyayaBot legal desk',
 }
@@ -43,9 +43,9 @@ function Shell({ children }: { children: ReactNode }) {
       <aside className={`rail ${open ? 'open' : ''}`}>
         <Link to="/" className="brand" onClick={() => setOpen(false)}>
           <Mark />
-          <div><strong>CODECUBICLE</strong><span>Evidence operating system</span></div>
+          <div><strong>CODECUBICLE</strong><span>Research & evidence register</span></div>
         </Link>
-        <div className="rail-section-label">Intelligence workspace</div>
+        <div className="rail-section-label">Workspace index</div>
         <nav className="main-nav">
           {nav.map(({ to, label, icon: Icon, badge }) => (
             <NavLink key={to} to={to} end={to === '/'} onClick={() => setOpen(false)}>
@@ -56,7 +56,7 @@ function Shell({ children }: { children: ReactNode }) {
         <div className="rail-bottom">
           <div className="engine-card">
             <div className="engine-orbit"><CircleDot size={14} /></div>
-            <div><strong>Engine online</strong><span>5 connectors · local core</span></div>
+            <div><strong>Collection service</strong><span>5 connectors · available</span></div>
           </div>
           <button className="rail-link"><Settings2 size={17} /> Workspace settings</button>
           <div className="profile"><span>SD</span><div><strong>Shubhi</strong><small>Builder workspace</small></div><ChevronRight size={15} /></div>
@@ -73,7 +73,7 @@ function Shell({ children }: { children: ReactNode }) {
           <div className="topbar-actions">
             <button className="command-button"><Search size={16} /><span>Search anything</span><kbd>⌘ K</kbd></button>
             <button className="icon-btn"><Bell size={18} /><i /></button>
-            <Link className="primary-btn compact" to="/missions/new"><Plus size={16} /> New mission</Link>
+            <Link className="primary-btn compact" to="/missions/new"><Plus size={16} /> New collection</Link>
           </div>
         </header>
         <main className="content">{children}</main>
@@ -110,7 +110,7 @@ function CommandCenter() {
   const [metrics, setMetrics] = useState({ active_missions: 12, sources_monitored: 183, changes_today: 27, open_conflicts: 4, coverage: 93 })
   useEffect(() => { api.overview().then((result) => { setMissions(result.missions); setEvents(result.events); setMetrics(result.metrics as typeof metrics) }) }, [])
   return <>
-    <PageIntro index="01" eyebrow="Mission control / Live" title="Intelligence, under command." description="See what the system is collecting, what changed, and where human judgment matters—without losing the evidence trail." actions={<><button className="ghost-btn"><History size={16} /> Last 24 hours</button><Link to="/missions/new" className="primary-btn"><Sparkles size={16} /> Launch mission</Link></>} />
+    <PageIntro index="01" eyebrow="Live register" title="Current operations" description="Collections in progress, newly recorded changes, incomplete fields and decisions waiting for review." actions={<><button className="ghost-btn"><History size={16} /> Last 24 hours</button><Link to="/missions/new" className="primary-btn"><Plus size={16} /> Start collection</Link></>} />
     <section className="metrics-grid">
       <Metric label="Active collections" value={metrics.active_missions} note="3 running now" tone="cobalt" icon={Activity} />
       <Metric label="Sources monitored" value={metrics.sources_monitored} note="98.4% healthy" tone="ink" icon={Globe2} />
@@ -173,7 +173,7 @@ function MissionBuilder() {
   const [planning, setPlanning] = useState(false)
   const generate = (event: FormEvent) => { event.preventDefault(); setPlanning(true); window.setTimeout(() => { setPlanning(false); setPlanned(true) }, 850) }
   return <>
-    <PageIntro index="02" eyebrow="Mission composer" title="Describe the intelligence. Not the plumbing." description="CodeCubicle turns the outcome you need into a transparent collection workflow you can inspect before anything runs." />
+    <PageIntro index="02" eyebrow="Collection specification" title="Define a collection" description="State the records you need. Review the proposed fields, sources, checks and update interval before the first run." />
     <div className="builder-grid">
       <section className="builder-main">
         <form className="prompt-composer" onSubmit={generate}>
@@ -203,7 +203,7 @@ function MissionBuilder() {
 function MissionsPage() {
   const [items, setItems] = useState(demoMissions)
   useEffect(() => { api.missions().then(setItems) }, [])
-  return <><PageIntro index="03" eyebrow="Mission registry" title="Reusable intelligence machines." description="Every mission remembers its schema, sources, decisions, run history and versioned output." actions={<Link className="primary-btn" to="/missions/new"><Plus size={16} /> New mission</Link>} />
+  return <><PageIntro index="03" eyebrow="Programme register" title="Collection programmes" description="Saved specifications with their source lists, run history, decisions and versioned output." actions={<Link className="primary-btn" to="/missions/new"><Plus size={16} /> New collection</Link>} />
     <div className="mission-cards">{items.map((mission, i) => <article className="mission-card" key={mission.id}><div className="mission-card-top"><span>{String(i + 1).padStart(2, '0')}</span><div className={`status-label ${mission.status}`}><i />{mission.status}</div><button>•••</button></div><h2>{mission.name}</h2><p>{mission.prompt}</p><div className="mission-card-stats"><div><span>Coverage</span><strong>{mission.coverage}%</strong></div><div><span>Records</span><strong>{mission.record_count}</strong></div><div><span>Changes</span><strong>{mission.change_count}</strong></div></div><div className="mission-card-foot"><span><Clock3 size={14} />{mission.cadence}</span><button>Open mission <ArrowRight size={14} /></button></div></article>)}</div></>
 }
 
@@ -227,7 +227,7 @@ function DatasetPage() {
   useEffect(() => { api.records().then((result) => setRows(result.records)) }, [])
   const filtered = useMemo(() => rows.filter((row) => (!changedOnly || row.changed) && (!query || Object.values(row).join(' ').toLowerCase().includes(query.toLowerCase()))), [rows, query, changedOnly])
   const inspect = async (row: RecordRow) => { setSelected(row); setEv(await api.evidence(row.id)) }
-  return <><PageIntro index="04" eyebrow="Dataset explorer / Version 18" title="The dataset is the product." description="Search, compare and export canonical records. Every changed cell and confidence score opens into its evidence chain." actions={<><button className="ghost-btn"><History size={16} /> v18 <ChevronDown size={14} /></button><button className="primary-btn"><Database size={16} /> Export dataset</button></>} />
+  return <><PageIntro index="04" eyebrow="Record register / Version 18" title="Working dataset" description="Search and export accepted records. Open any changed value to inspect its source, extraction and decision history." actions={<><button className="ghost-btn"><History size={16} /> v18 <ChevronDown size={14} /></button><button className="primary-btn"><Database size={16} /> Export records</button></>} />
     <section className="dataset-summary"><div><span>Dataset</span><strong>India AI Opportunity Radar</strong></div><div><span>Published</span><strong>26 Sep 2026 · 21:04</strong></div><div><span>Records</span><strong>42 canonical</strong></div><div><span>Coverage</span><strong>89%</strong></div><div><span>Delta</span><strong className="orange-text">+3 / Δ7</strong></div></section>
     <section className="surface dataset-surface"><div className="dataset-tools"><label className="table-search"><Search size={16} /><input placeholder="Search records, fields or organisations…" value={query} onChange={(e) => setQuery(e.target.value)} /></label><button className={`tool-toggle ${changedOnly ? 'active' : ''}`} onClick={() => setChangedOnly(!changedOnly)}><Zap size={15} /> Changed only</button><button className="tool-toggle"><Filter size={15} /> Filter</button><button className="tool-toggle"><PanelLeftClose size={15} /> Columns</button><span>{filtered.length} visible</span></div>
       <div className="data-table-wrap"><table className="data-table"><thead><tr><th>Organisation</th><th>Opportunity</th><th>Deadline</th><th>Value</th><th>Location</th><th>Status</th><th>Evidence</th><th /></tr></thead><tbody>{filtered.map((row) => <tr key={row.id} onClick={() => inspect(row)}><td><strong>{row.organisation}</strong></td><td><span className="opportunity-cell">{row.opportunity}{row.changed && <Zap size={12} />}</span></td><td><span className={row.id === 'rec-001' ? 'changed-cell' : ''}>{row.deadline}</span></td><td>{row.value}</td><td>{row.location}</td><td><span className={`record-status ${row.status.toLowerCase()}`}>{row.status}</span></td><td><span className={`confidence ${row.confidence < 75 ? 'low' : ''}`}>{row.confidence}%</span><small>{row.sources} src</small></td><td><button className="inspect-button"><Eye size={16} /></button></td></tr>)}</tbody></table></div>
@@ -240,7 +240,7 @@ function DatasetPage() {
 function ChangesPage() {
   const [items, setItems] = useState<Change[]>(demoChanges)
   useEffect(() => { api.changes().then(setItems) }, [])
-  return <><PageIntro index="05" eyebrow="Semantic change intelligence" title="See what changed. Understand why." description="CodeCubicle compares typed facts and evidence—not noisy page HTML—to surface changes that matter." actions={<button className="primary-btn"><Bot size={16} /> Summarise today</button>} />
+  return <><PageIntro index="05" eyebrow="Version comparison" title="Recorded changes" description="Field-level differences between accepted versions, with the evidence that caused each revision." actions={<button className="primary-btn"><FileSearch size={16} /> Prepare daily brief</button>} />
     <div className="change-layout"><section className="surface change-feed"><div className="surface-head"><div><span className="eyebrow">27 changes today</span><h2>Material change feed</h2></div><div className="inline-filters"><button>All impact <ChevronDown size={13} /></button><button>All missions <ChevronDown size={13} /></button></div></div>
       {items.map((item) => <article className="change-item" key={item.id}><div className={`impact-flag ${item.impact}`}><Zap size={16} /></div><div className="change-main"><div className="change-meta"><span>{item.kind.replace('_', ' ')}</span><time>{item.time}</time><em>{item.confidence}% confidence</em></div><h3>{item.title}</h3><p>{item.entity}</p><div className="diff"><span className="before">{item.before || 'No previous record'}</span><ArrowRight size={16} /><span className="after">{item.after}</span></div><div className="change-source"><FileCheck2 size={14} />{item.source}</div></div><button className="row-action"><ChevronRight size={18} /></button></article>)}
     </section><aside className="surface time-lens"><span className="eyebrow">Time lens</span><h2>Version delta</h2><div className="version-comparison"><div><span>From</span><strong>v17</strong><small>25 Sep · 18:00</small></div><GitCompareArrows size={20} /><div><span>To</span><strong>v18</strong><small>26 Sep · 21:04</small></div></div><div className="delta-grid"><div><strong>3</strong><span>Added</span></div><div><strong>0</strong><span>Removed</span></div><div><strong>7</strong><span>Changed</span></div><div><strong>1</strong><span>Conflict</span></div></div><button className="wide-link">Compare full versions <ArrowRight size={15} /></button></aside></div>
@@ -251,7 +251,7 @@ function ReviewsPage() {
   const [items, setItems] = useState<Review[]>(demoReviews)
   const [done, setDone] = useState<Record<string, string>>({})
   useEffect(() => { api.reviews().then(setItems) }, [])
-  return <><PageIntro index="06" eyebrow="Human decision desk" title="Automation knows when to stop." description="High-impact uncertainty, source disagreement and suspected removals are held for explicit human judgment." />
+  return <><PageIntro index="06" eyebrow="Human review" title="Decision queue" description="Source disagreements, suspected removals and low-confidence changes remain pending until somebody decides." />
     <div className="review-stack">{items.map((item, index) => <article className={`review-card ${done[item.id] ? 'decided' : ''}`} key={item.id}><div className="review-number">{String(index + 1).padStart(2, '0')}</div><div className="review-body"><div className="review-meta"><span className={`priority ${item.priority}`}>{item.priority}</span><span>Field: <b>{item.field}</b></span><span>{item.sources.length} evidence sources</span></div><h2>{item.title}</h2><p className="review-record">{item.record}</p><p>{item.reason}</p><div className="recommendation"><span>System recommendation</span><strong>{item.recommended}</strong><em>{item.confidence}% confidence</em></div><div className="source-pills">{item.sources.map((source) => <span key={source}><FileCheck2 size={13} />{source}</span>)}</div></div><div className="review-actions">{done[item.id] ? <div className="decision-done"><Check size={24} /><strong>{done[item.id]}</strong><span>Decision recorded</span></div> : <><button className="accept" onClick={() => setDone({ ...done, [item.id]: 'Accepted' })}><Check size={16} />Accept</button><button onClick={() => setDone({ ...done, [item.id]: 'Investigating' })}><FileSearch size={16} />Investigate</button><button className="reject" onClick={() => setDone({ ...done, [item.id]: 'Rejected' })}><X size={16} />Reject</button></>}</div></article>)}</div>
   </>
 }
@@ -259,7 +259,7 @@ function ReviewsPage() {
 function SourcesPage() {
   const [items, setItems] = useState<Source[]>(demoSources)
   useEffect(() => { api.sources().then(setItems) }, [])
-  return <><PageIntro index="07" eyebrow="Source network" title="Authority is infrastructure." description="Every source is explicit, permissioned, health-checked and scored. Search discovery never masquerades as evidence." actions={<button className="primary-btn"><Plus size={16} /> Connect source</button>} />
+  return <><PageIntro index="07" eyebrow="Source register" title="Sources and permissions" description="Approved endpoints, collection health, authority class and most recent successful retrieval." actions={<button className="primary-btn"><Plus size={16} /> Add source</button>} />
     <section className="source-map"><div className="source-map-center"><Mark /><strong>Evidence graph</strong><span>1,061 snapshots</span></div>{items.slice(0, 4).map((source, i) => <div className={`source-node n${i + 1}`} key={source.id}><Globe2 size={17} /><strong>{source.name}</strong><span>{source.records} records</span></div>)}<svg viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="50" y1="50" x2="16" y2="18" /><line x1="50" y1="50" x2="84" y2="18" /><line x1="50" y1="50" x2="16" y2="82" /><line x1="50" y1="50" x2="84" y2="82" /></svg></section>
     <section className="surface source-table-surface"><div className="surface-head"><div><span className="eyebrow">Connected sources</span><h2>Permission & health registry</h2></div><button className="ghost-btn"><RefreshCw size={15} /> Check all</button></div><div className="source-table">{items.map((source) => <div className="source-row" key={source.id}><div className="source-logo"><Globe2 size={19} /></div><div className="source-name"><strong>{source.name}</strong><span>{source.owner}</span></div><div><span>Class</span><strong>{source.type}</strong></div><div><span>Authority</span><strong>{source.authority}/100</strong></div><div><span>Collected</span><strong>{source.records}</strong></div><div><span>Last check</span><strong>{source.last_checked}</strong></div><div className={`health ${source.status}`}><i />{source.status}</div><a href={source.url} target="_blank" rel="noreferrer"><ExternalLink size={15} /></a></div>)}</div></section>
   </>
@@ -287,8 +287,8 @@ function NyayaPage() {
     <PageIntro
       index="08"
       eyebrow="Specialist intelligence / Indian law"
-      title="NyayaBot stays. CodeCubicle makes it stronger."
-      description="The original legal-action engine remains a complete specialist workspace—now backed by CodeCubicle’s source collection, evidence graph, change monitoring and versioned datasets."
+      title="NyayaBot legal workspace"
+      description="Case analysis, statute research, procedures and verified drafting, using the same source and evidence register as every other collection."
       actions={<span className="nyaya-reserved"><Scale size={15} /> Reserved specialist module</span>}
     />
 
@@ -344,7 +344,7 @@ function LegalRadarPage() {
   const [live, setLive] = useState(false)
   const [results, setResults] = useState<Array<Record<string, string | number>>>([])
   const search = async (event: FormEvent) => { event.preventDefault(); setBusy(true); const response = await api.legalSearch(query); setResults(response.results); setLive(response.live); setSearched(true); setBusy(false) }
-  return <><PageIntro index="09" eyebrow="Specialist workspace / India" title="Law, as living evidence." description="Query the official India Code index directly. Legal intelligence is the first specialist lens on top of CodeCubicle’s general evidence engine." />
+  return <><PageIntro index="09" eyebrow="Official legislation / India" title="Official law index" description="Query the India Code index directly and import selected provisions into a case evidence record." />
     <div className="legal-hero"><div><span className="legal-kicker"><BookOpen size={16} /> Official legislation discovery</span><h2>Search the law. Keep the lineage.</h2><p>Results resolve to India Code, an official Government of India source. Discovery results remain separate from verified evidence until fetched and snapshotted.</p><form onSubmit={search}><Search size={20} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Try: data protection, consumer rights, mediation…" /><button disabled={busy}>{busy ? 'Searching…' : 'Search India Code'}</button></form><div className="legal-trust"><span><ShieldCheck size={14} /> Official domain only</span><span><Fingerprint size={14} /> Snapshot on import</span><span><GitCompareArrows size={14} /> Amendment-aware</span></div></div><div className="law-visual"><div className="law-number">100</div><span>authority score</span><i /><p>Ministry of Law & Justice<br />National Informatics Centre</p></div></div>
     {searched && <section className="surface legal-results"><div className="surface-head"><div><span className="eyebrow">Search results</span><h2>{results.length ? `${results.length} official records found` : 'Official connector response'}</h2></div><span className={`live-state ${live ? 'on' : ''}`}><i />{live ? 'Live source' : 'Source unavailable — no records invented'}</span></div>{results.length ? results.map((result, index) => <article className="law-result" key={index}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{String(result.title || 'Official record')}</strong><p>Act no. {String(result.act_number || '—')} · Enacted {String(result.enactment_date || '—')}</p></div><em>Authority 100</em><a href={String(result.official_url)} target="_blank" rel="noreferrer">Open official <ExternalLink size={14} /></a></article>) : <div className="connector-empty"><Network size={26} /><div><strong>The official source could not be read in this environment.</strong><p>CodeCubicle failed closed: it did not substitute generated or unverified legal records. Retry when network access is available.</p></div></div>}</section>}
   </>
