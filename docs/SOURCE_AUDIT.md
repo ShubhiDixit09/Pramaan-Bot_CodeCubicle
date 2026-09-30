@@ -1,4 +1,4 @@
-# CodeCubicle source and accuracy audit
+# Pramaan source and accuracy audit
 
 Audited: 26 September 2026. Runtime policy: **verified-only**.
 
@@ -14,7 +14,7 @@ connector now returns an empty result instead of substituting invented facts.
 
 ## Registered sources
 
-| Source | What the official site supports | Current CodeCubicle status | Next connector gate |
+| Source | What the official site supports | Current Pramaan status | Next connector gate |
 |---|---|---|---|
 | India Code | Central acts, sections and subordinate legislation search; content supplied by Government ministries/departments and site operated by NIC | Connector implemented, but direct live check timed out; `connected_unverified` | Successful fetch; parser contract test; snapshot hash; item-detail validation |
 | eGazette of India | Gazette publications from the Department of Publication | Official source catalogued; no connector | Confirm stable permitted search/download route; capture issue metadata and PDF hash |

@@ -11,7 +11,7 @@ from .data import CHANGES, EVIDENCE, MISSIONS, RECORDS, REVIEWS, RUN_EVENTS, SOU
 
 
 app = FastAPI(
-    title="CodeCubicle Evidence API",
+    title="Pramaan Evidence API",
     version="0.1.0",
     description="Mission, evidence, dataset and public-source intelligence API.",
 )
@@ -37,7 +37,7 @@ class ReviewDecision(BaseModel):
 def health() -> dict:
     return {
         "status": "ok",
-        "product": "CodeCubicle",
+        "product": "Pramaan",
         "mode": "verified-only",
         "capabilities": ["missions", "datasets", "provenance", "changes", "review", "india-code"],
     }

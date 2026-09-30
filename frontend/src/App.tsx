@@ -31,7 +31,7 @@ const routeNames: Record<string, string> = {
 }
 
 function Mark() {
-  return <div className="mark" aria-label="CodeCubicle"><span>C</span><i /><b /></div>
+  return <div className="mark" aria-label="Pramaan"><span>P</span><i /><b /></div>
 }
 
 function Shell({ children }: { children: ReactNode }) {
@@ -42,7 +42,7 @@ function Shell({ children }: { children: ReactNode }) {
       <aside className={`rail ${open ? 'open' : ''}`}>
         <Link to="/" className="brand" onClick={() => setOpen(false)}>
           <Mark />
-          <div><strong>CODECUBICLE</strong><span>Research & evidence register</span></div>
+          <div><strong>PRAMAAN</strong><span>Research & evidence register</span></div>
         </Link>
         <div className="rail-section-label">Workspace index</div>
         <nav className="main-nav">
@@ -66,7 +66,7 @@ function Shell({ children }: { children: ReactNode }) {
         <header className="topbar">
           <div className="topbar-left">
             <button className="mobile-menu" onClick={() => setOpen(true)}><Menu size={20} /></button>
-            <span className="workspace-name">CODECUBICLE</span><ChevronRight size={13} />
+            <span className="workspace-name">PRAMAAN</span><ChevronRight size={13} />
             <strong>{routeNames[location.pathname] || 'Intelligence workspace'}</strong>
           </div>
           <div className="topbar-actions">
@@ -315,7 +315,7 @@ function NyayaPage() {
         <div className="surface-head"><div><span className="eyebrow">02 / Grounded analysis</span><h2>{analysed ? 'Source verification required' : 'Ready for analysis'}</h2></div>{analysed && <span className="confidence-chip">No verified result</span>}</div>
         {!analysed ? <div className="nyaya-empty"><Scale size={29} /><strong>No disposable chatbot answer.</strong><p>NyayaBot will create a persistent matter record, retrieve relevant law, attach evidence and generate a resumable action path.</p></div> : <div className="legal-output">
           <div className="issue-strip"><span>Runtime status</span><strong>Live legal retrieval did not run</strong><em>Fail closed</em></div>
-          <div className="legal-guidance"><h3>No legal conclusion generated</h3><p>The matter was not analysed because the current build has not successfully retrieved and snapshotted the governing sources. CodeCubicle will not present a plausible-sounding legal answer as verified evidence.</p></div>
+          <div className="legal-guidance"><h3>No legal conclusion generated</h3><p>The matter was not analysed because the current build has not successfully retrieved and snapshotted the governing sources. Pramaan will not present a plausible-sounding legal answer as verified evidence.</p></div>
           <div className="legal-disclaimer"><AlertTriangle size={14} /> Connect and verify India Code plus the applicable state-law source before enabling matter analysis.</div>
         </div>}
       </section>
@@ -343,7 +343,7 @@ function LegalRadarPage() {
   const search = async (event: FormEvent) => { event.preventDefault(); setBusy(true); const response = await api.legalSearch(query); setResults(response.results); setLive(response.live); setSearched(true); setBusy(false) }
   return <><PageIntro index="09" eyebrow="Official legislation / India" title="Official law index" description="Query the India Code index directly and import selected provisions into a case evidence record." />
     <div className="legal-hero"><div><span className="legal-kicker"><BookOpen size={16} /> Official legislation discovery</span><h2>Search the law. Keep the lineage.</h2><p>Results resolve to India Code, an official Government of India source. Discovery results remain separate from verified evidence until fetched and snapshotted.</p><form onSubmit={search}><Search size={20} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Try: data protection, consumer rights, mediation…" /><button disabled={busy}>{busy ? 'Searching…' : 'Search India Code'}</button></form><div className="legal-trust"><span><ShieldCheck size={14} /> Official domain only</span><span><Fingerprint size={14} /> Snapshot on import</span><span><GitCompareArrows size={14} /> Amendment-aware</span></div></div><div className="law-visual"><div className="law-number">100</div><span>authority score</span><i /><p>Ministry of Law & Justice<br />National Informatics Centre</p></div></div>
-    {searched && <section className="surface legal-results"><div className="surface-head"><div><span className="eyebrow">Search results</span><h2>{results.length ? `${results.length} official records found` : 'Official connector response'}</h2></div><span className={`live-state ${live ? 'on' : ''}`}><i />{live ? 'Live source' : 'Source unavailable — no records invented'}</span></div>{results.length ? results.map((result, index) => <article className="law-result" key={index}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{String(result.title || 'Official record')}</strong><p>Act no. {String(result.act_number || '—')} · Enacted {String(result.enactment_date || '—')}</p></div><em>Authority 100</em><a href={String(result.official_url)} target="_blank" rel="noreferrer">Open official <ExternalLink size={14} /></a></article>) : <div className="connector-empty"><Network size={26} /><div><strong>The official source could not be read in this environment.</strong><p>CodeCubicle failed closed: it did not substitute generated or unverified legal records. Retry when network access is available.</p></div></div>}</section>}
+    {searched && <section className="surface legal-results"><div className="surface-head"><div><span className="eyebrow">Search results</span><h2>{results.length ? `${results.length} official records found` : 'Official connector response'}</h2></div><span className={`live-state ${live ? 'on' : ''}`}><i />{live ? 'Live source' : 'Source unavailable — no records invented'}</span></div>{results.length ? results.map((result, index) => <article className="law-result" key={index}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{String(result.title || 'Official record')}</strong><p>Act no. {String(result.act_number || '—')} · Enacted {String(result.enactment_date || '—')}</p></div><em>Authority 100</em><a href={String(result.official_url)} target="_blank" rel="noreferrer">Open official <ExternalLink size={14} /></a></article>) : <div className="connector-empty"><Network size={26} /><div><strong>The official source could not be read in this environment.</strong><p>Pramaan failed closed: it did not substitute generated or unverified legal records. Retry when network access is available.</p></div></div>}</section>}
   </>
 }
 

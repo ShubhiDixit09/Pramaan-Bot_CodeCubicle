@@ -1,10 +1,10 @@
-# CodeCubicle
+# Pramaan
 
-CodeCubicle is an evidence operating system for turning a plain-English intelligence
+Pramaan is an evidence operating system for turning a plain-English intelligence
 request into a monitored, source-backed, versioned dataset.
 
 It is being built for the **AI-Powered Data Intelligence Platform** problem statement.
-NyayaBot is an input prototype only; CodeCubicle is a new product and architecture.
+NyayaBot is an input prototype only; Pramaan is a new product and architecture.
 
 ## Product loop
 
@@ -16,10 +16,10 @@ The initial vertical is Indian legal and public-sector intelligence because it m
 authority, freshness, disagreement, and provenance impossible to hand-wave. The core
 engine remains domain-independent.
 
-NyayaBot is preserved inside CodeCubicle as the dedicated Indian legal-intelligence
+NyayaBot is preserved inside Pramaan as the dedicated Indian legal-intelligence
 desk. Its case analysis, statutory research, resumable procedures, verified drafting,
 privacy boundary, citation checks, and trust reports remain product capabilities;
-CodeCubicle adds continuous collection, evidence graphs, change monitoring, and living
+Pramaan adds continuous collection, evidence graphs, change monitoring, and living
 datasets around them.
 
 ## What this first cut contains

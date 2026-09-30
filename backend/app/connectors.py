@@ -65,7 +65,7 @@ async def search_india_code(query: str, limit: int = 10) -> list[dict]:
     }
     url = f"{INDIA_CODE_SEARCH}?{urlencode(params)}"
     headers = {
-        "User-Agent": "CodeCubicle/0.1 official-source research connector",
+        "User-Agent": "Pramaan/0.1 official-source research connector",
         "Accept": "text/html,application/xhtml+xml",
     }
     async with httpx.AsyncClient(timeout=30, follow_redirects=True, headers=headers) as client:
