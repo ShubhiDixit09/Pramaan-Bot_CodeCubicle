@@ -73,31 +73,49 @@ def check_input(text: str) -> InputGuardResult:
     )
 
 
-def verify_output(answer: str, citations: Iterable[dict]) -> dict:
+def verify_output(
+    answer: str, citations: Iterable[dict], limitations: list[str] | None = None
+) -> dict:
     citations = list(citations)
-    citation_labels = [item.get("section", "") for item in citations]
-    mentioned = sum(1 for label in citation_labels if label and label.lower() in answer.lower())
+    limitations = limitations or []
+    cited_sections = {
+        match.group(1).lower()
+        for item in citations
+        if (match := re.search(r"\bsection\s+(\d+[a-z]?(?:\([a-z0-9]+\))?)", item.get("section", ""), re.I))
+    }
+    answer_sections = re.findall(r"(?:section|धारा)\s+(\d+[a-z]?(?:\([a-z0-9]+\))?)", answer, re.I)
+    mentioned = sum(
+        1
+        for item in citations
+        if item.get("act", "").lower() in answer.lower()
+        and item.get("section", "").lower() in answer.lower()
+    )
     citation_coverage = mentioned / len(citations) if citations else 0.0
     disclaimer_present = DISCLAIMER.lower() in answer.lower()
-    suspicious_sections = re.findall(r"(?:section|धारा)\s+([\w()/-]+)", answer, re.I)
-    known = {label.lower() for label in citation_labels}
-    unsupported = [section for section in suspicious_sections if section.lower() not in known]
-    grounding = max(0.0, 1.0 - (len(unsupported) / max(1, len(suspicious_sections))))
-    pii_safe = not any(pattern.search(answer) for pattern in PII_PATTERNS.values())
-    score = round(
-        (citation_coverage * 0.4 + grounding * 0.35 + float(pii_safe) * 0.15 + float(disclaimer_present) * 0.1)
-        * 100,
-        1,
+    unsupported = [section for section in answer_sections if section.lower() not in cited_sections]
+    grounding = (
+        (len(answer_sections) - len(unsupported)) / len(answer_sections)
+        if answer_sections else 0.0
     )
-    findings = []
+    pii_safe = not any(pattern.search(answer) for pattern in PII_PATTERNS.values())
+    base_score = (
+        (citation_coverage * 0.4 + grounding * 0.35 + float(pii_safe) * 0.15 + float(disclaimer_present) * 0.1)
+        * 100
+    )
+    score = round(max(0.0, base_score - 15 * len(limitations)), 1)
+    if not citations:
+        score = 0.0
+    findings = list(limitations)
     if unsupported:
         findings.append(f"Review unsupported section references: {', '.join(unsupported)}")
     if not citations:
         findings.append("No corpus citations were attached.")
+    if not answer_sections:
+        findings.append("The answer does not identify a section that can be checked against the corpus.")
     if not disclaimer_present:
         findings.append("Required legal-information disclaimer is missing.")
     if not findings:
-        findings.append("Response is grounded in the retrieved local sources.")
+        findings.append("Section references match attached sources; factual and legal conclusions still need review.")
     return {
         "score": score,
         "citation_coverage": round(citation_coverage * 100, 1),

@@ -1,7 +1,7 @@
 # PRAMAAN BOT — Sovereign Legal Intelligence at the Edge
 
 > Private, offline-first legal assistance for India - from a citizen's own words to
-> grounded law, a verified action plan, and a ready-to-review document.
+> source-linked legal information, a reviewable action plan, and a ready-to-review document.
 
 PRAMAAN BOT is not a cloud chatbot wrapped around a legal prompt. It is a deterministic
 legal-action system designed for citizens who face three barriers at once: difficult
@@ -9,7 +9,7 @@ legal language, sensitive personal facts, and unreliable connectivity.
 
 A citizen explains a problem in English, Hindi, or Hinglish. PRAMAAN BOT masks personal
 identifiers, retrieves relevant provisions from a local statutory corpus, uses a locally
-running Gemma model when available, verifies the response against retrieved law, and
+running Gemma model when available, checks section references against the local corpus, and
 turns the result into a resumable procedure or fact-bound draft. The case stays on the
 device.
 
@@ -42,10 +42,10 @@ India's legal-access gap is not only a shortage of answers.
 |---|---|
 | Sends prompts to a cloud model | Enforces a loopback-only model endpoint |
 | Produces a one-time answer | Builds a persistent local case workspace |
-| Hides reasoning quality behind confidence | Exposes citations, grounding, PII safety, and findings |
+| Hides reasoning quality behind confidence | Exposes citation coverage, reference checks, PII safety, and limitations |
 | Treats workflow as prose | Uses deterministic, resumable procedure state |
 | Overwrites mutable records | Uses CAS revisions and immutable event/audit history |
-| Generic template drafting | Binds drafts to verified case facts |
+| Generic template drafting | Binds drafts to saved case facts, clearly marked for review |
 | Requires dependable connectivity | Runs with local retrieval and a deterministic fallback |
 
 ## Seven-layer architecture
@@ -125,10 +125,10 @@ model URL is rejected during startup.
 - **Dashboard** - local case register and urgency overview
 - **New case** - plain-language English, Hindi, or Hinglish intake
 - **Case workspace** - analysis, facts, citations, next actions, and trust score
-- **Legal research** - semantic search over the offline statutory corpus
+- **Legal research** - weighted text search over the offline statutory corpus
 - **Action guides** - resumable consumer, RTI, and police-complaint checklists
 - **Document drafting** - fact-bound notices, complaints, and RTI applications
-- **Trust report** - citation coverage, grounding, PII safety, disclaimer checks, and findings
+- **Trust report** - citation coverage, section-reference checks, PII safety, disclaimer checks, and review limitations
 
 ## Privacy and safety boundary
 
@@ -145,16 +145,21 @@ React :5173  ->  FastAPI :8000  ->  Ollama :11434
 - Aadhaar numbers, phone numbers, email addresses, and PAN patterns are masked before
   model processing.
 - Prompt-injection patterns are blocked.
-- Unsupported section references reduce the grounding score and remain visible.
+- Unsupported section references reduce the reference-check score and remain visible.
+- The answer-review score weights citation coverage (40%), section checks (35%), PII
+  patterns (15%), and disclaimer presence (10%), then deducts 15 points for each
+  stated limitation; without an attached source it is zero. It is not a probability of legal success or proof that documents
+  and legal conclusions are correct.
 - Every response receives a legal-information disclaimer.
-- Evidence is content-hashed on ingestion.
+- Evidence is content-hashed on ingestion; a hash does not establish authenticity or prove the facts asserted in a file.
 - SQLCipher configuration fails closed if a key is supplied without a cipher-capable driver.
 
 ## Three-minute demonstration
 
-1. Create a case in Hinglish: *“Landlord security deposit wapas nahi de raha.”*
+1. On **New case**, load the landlord deposit example and create its private workspace.
 2. Show that identity and contact patterns are masked locally.
-3. Run analysis and inspect retrieved statutes, citations, and trust findings.
+3. Ask how to recover the deposit. The saved case facts are included in retrieval;
+   inspect the contextual Contract Act source and the limitations behind the score.
 4. Open the saved case workspace - nothing disappears after the answer.
 5. Start a resumable action checklist and mark one step complete.
 6. Generate a fact-bound legal notice and export it locally as PDF.

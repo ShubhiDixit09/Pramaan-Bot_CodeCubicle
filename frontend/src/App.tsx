@@ -54,7 +54,7 @@ export default function App() {
         <div className="brand">
           <div className="brand-mark"><Scale size={23} /></div>
           <div>
-            <strong>PRAMAAN BOT</strong>
+            <strong>Pramaan Bot</strong>
             <span>Local legal action engine</span>
           </div>
           <button className="icon-button close-menu" onClick={() => setMenuOpen(false)}>

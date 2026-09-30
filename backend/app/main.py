@@ -117,11 +117,17 @@ def delete_case(
 @app.post("/api/cases/{case_id}/analyze", response_model=AnalysisResult)
 def analyze_case(case_id: str, payload: ChatRequest) -> dict:
     try:
-        repository.get(case_id)
+        case = repository.get(case_id)
+        related = repository.related(case_id)
     except NotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     return engine.analyze(
-        case_id, payload.message, payload.language, payload.idempotency_key
+        case_id,
+        payload.message,
+        payload.language,
+        payload.idempotency_key,
+        case_context=case,
+        evidence_count=len(related.get("evidence", [])),
     )
 
 

@@ -40,7 +40,14 @@ class LegalCorpus:
             for key in ("act", "section", "title", "text", "keywords", "jurisdiction")
         )
 
-    def search(self, query: str, limit: int = 5) -> list[dict[str, Any]]:
+    def search(
+        self,
+        query: str,
+        limit: int = 5,
+        domain: str | None = None,
+        issue: str | None = None,
+        jurisdiction: str | None = None,
+    ) -> list[dict[str, Any]]:
         query_tokens = Counter(tokenize(query))
         if not query_tokens:
             return []
@@ -48,12 +55,24 @@ class LegalCorpus:
         # Hierarchical boost: first identify matching Acts, then rank sections.
         act_scores: Counter[str] = Counter()
         for document, tokens in zip(self.documents, self._doc_tokens):
+            if domain and domain not in document.get("domains", []):
+                continue
+            if issue and issue not in document.get("issues", []):
+                continue
+            if jurisdiction and document.get("jurisdiction") not in ("India", jurisdiction):
+                continue
             overlap = sum(query_tokens[token] * self._idf.get(token, 0) for token in set(tokens))
             act_scores[document["act"]] += overlap
         preferred_acts = {name for name, _ in act_scores.most_common(3)}
 
         ranked = []
         for document, tokens in zip(self.documents, self._doc_tokens):
+            if domain and domain not in document.get("domains", []):
+                continue
+            if issue and issue not in document.get("issues", []):
+                continue
+            if jurisdiction and document.get("jurisdiction") not in ("India", jurisdiction):
+                continue
             token_counts = Counter(tokens)
             numerator = sum(
                 query_tokens[token] * token_counts[token] * self._idf.get(token, 0) ** 2

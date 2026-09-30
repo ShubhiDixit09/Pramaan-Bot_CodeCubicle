@@ -13,7 +13,9 @@ vite.config.js
 vite.config.d.ts
 
 # Local runtime data
-data/
+/data/
+/backend/data/*.db
+/backend/data/*.sqlite3
 *.db
 *.sqlite3
 *.pdf

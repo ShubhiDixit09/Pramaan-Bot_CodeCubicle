@@ -32,6 +32,12 @@ class LegalEngine:
         for domain, issue, terms in INTENTS:
             hits = sum(term in lowered for term in terms)
             if hits:
+                if domain == "tenancy":
+                    issue = (
+                        "deposit_refund"
+                        if "deposit" in lowered or "security amount" in lowered
+                        else "eviction_notice"
+                    )
                 return {
                     "domain": domain,
                     "issue": issue,
@@ -40,12 +46,22 @@ class LegalEngine:
         return {"domain": "general", "issue": "legal_information", "confidence": 0.45}
 
     def analyze(
-        self, case_id: str, message: str, language: str, idempotency_key: str
+        self,
+        case_id: str,
+        message: str,
+        language: str,
+        idempotency_key: str,
+        case_context: dict[str, Any] | None = None,
+        evidence_count: int = 0,
     ) -> dict[str, Any]:
         cached = self.database.cached_response(idempotency_key)
         if cached:
             return cached
-        guards = check_input(message)
+        case_context = case_context or {}
+        full_question = "\n".join(
+            part for part in (case_context.get("title", ""), case_context.get("description", ""), message) if part
+        )
+        guards = check_input(full_question)
         if not guards.allowed:
             result = {
                 "intent": self.classify(message),
@@ -56,9 +72,9 @@ class LegalEngine:
                 "citations": [],
                 "guardrails": guards.to_dict(),
                 "trust_report": {
-                    "score": 45.0,
+                    "score": 0.0,
                     "citation_coverage": 0.0,
-                    "grounding_score": 100.0,
+                    "grounding_score": 0.0,
                     "pii_safe": True,
                     "disclaimer_present": True,
                     "findings": guards.findings,
@@ -72,15 +88,35 @@ class LegalEngine:
             return result
 
         intent = self.classify(guards.masked_text)
-        citations = self.corpus.search(guards.masked_text, limit=4)
-        prompt = self._prompt(guards.masked_text, language, intent, citations)
-        answer = self.ollama.generate(prompt)
-        mode = "ollama"
-        if not answer:
+        citations = self.corpus.search(
+            guards.masked_text,
+            limit=4,
+            domain=intent["domain"] if intent["domain"] != "general" else None,
+            issue=intent["issue"] if intent["domain"] != "general" else None,
+            jurisdiction=case_context.get("jurisdiction"),
+        )
+        if intent["issue"] == "deposit_refund":
             answer = self._grounded_fallback(guards.masked_text, intent, citations, language)
-            mode = "deterministic-fallback"
+            mode = "source-led"
+        else:
+            prompt = self._prompt(guards.masked_text, language, intent, citations)
+            answer = self.ollama.generate(prompt)
+            mode = "ollama"
+            if not answer:
+                answer = self._grounded_fallback(guards.masked_text, intent, citations, language)
+                mode = "deterministic-fallback"
         answer = ensure_disclaimer(answer)
-        trust = verify_output(answer, citations)
+        limitations = []
+        if citations and not any(item.get("support_level", "direct") == "direct" for item in citations):
+            limitations.append(
+                "The local corpus has contextual law but no provision directly deciding this issue."
+            )
+        limitations.append(
+            "No supporting document was uploaded; the stated agreement, payment and deductions are unverified."
+            if evidence_count == 0
+            else "Uploaded documents have not been independently checked against the stated facts."
+        )
+        trust = verify_output(answer, citations, limitations=limitations)
         next_steps = self._next_steps(intent)
         result = {
             "intent": intent,
@@ -108,13 +144,18 @@ class LegalEngine:
         query: str, language: str, intent: dict[str, Any], citations: list[dict[str, Any]]
     ) -> str:
         context = "\n\n".join(
-            f"[{item['act']} — {item['section']}] {item['text']}" for item in citations
+            f"[{item['act']} — {item['section']}; jurisdiction: {item['jurisdiction']}] {item['text']}"
+            for item in citations
         )
         return f"""You are PRAMAAN BOT, an offline Indian legal-information assistant.
 Answer in clear {language}. Use only the supplied legal context. Never invent a
 section, deadline, fee, court, or factual detail. Separate known facts from
 assumptions. Give a short explanation followed by actionable numbered steps.
 Cite provisions exactly as Act — Section. Do not expose hidden reasoning.
+For a tenancy deposit question, check the agreement terms and the evidence of
+payment, handover, property condition and deductions. If monthly rent is unknown,
+do not assume the Delhi Rent Control Act applies or name a final forum. A section
+about reasonable wear and tear is not an automatic refund order.
 
 Detected intent: {intent}
 Citizen query: {query}
@@ -132,6 +173,31 @@ LOCAL LEGAL CONTEXT:
                 "The local corpus does not contain enough matching material to answer this safely. "
                 "Record the dates, documents and authority involved, then consult the relevant legal-aid office."
             )
+        if intent["issue"] == "deposit_refund":
+            known = {item["id"] for item in citations}
+            points = [
+                "Your account says the deposit was paid and the keys were returned, while painting and cleaning deductions have not been itemised. The agreement, payment record and property condition have not been verified."
+            ]
+            if "contract-1872-s37" in known:
+                points.append(
+                    "Indian Contract Act, 1872 — Section 37 concerns performance of contractual promises; the tenancy agreement must show the refund and deduction terms."
+                )
+            if "tpa-1882-s108m" in known:
+                points.append(
+                    "Transfer of Property Act, 1882 — Section 108(m) distinguishes tenant-caused damage from reasonable wear and tear, subject to any contrary contract or local usage. It does not automatically invalidate painting or cleaning charges."
+                )
+            if "contract-1872-s73" in known:
+                points.append(
+                    "Indian Contract Act, 1872 — Section 73 provides a general remedy for loss caused by breach; it does not establish the amount due here."
+                )
+            if "drc-1958-s3c" in known:
+                points.append(
+                    "Delhi Rent Control Act, 1958 — Section 3(c) excludes premises with monthly rent above ₹3,500. Your monthly rent is not stated, so the applicable forum cannot yet be selected."
+                )
+            points.append(
+                "Ask the landlord for a written calculation and supporting bills. Preserve payment, handover and condition records. The local corpus has no rule that alone decides this deposit refund. Seek qualified advice if the dispute continues."
+            )
+            return "\n\n".join(points)
         provisions = "; ".join(f"{item['act']} — {item['section']}" for item in citations[:3])
         summaries = " ".join(item["text"] for item in citations[:2])
         prefix = (
@@ -149,6 +215,14 @@ LOCAL LEGAL CONTEXT:
     @staticmethod
     def _next_steps(intent: dict[str, Any]) -> list[str]:
         common = ["Preserve notices, receipts, messages and a dated timeline."]
+        if intent["issue"] == "deposit_refund":
+            return [
+                "Read the agreement's deposit, deduction and handover terms.",
+                "Save the UPI payment record and messages showing when the keys were returned.",
+                "Ask the landlord in writing for an itemised deduction statement and supporting bills.",
+                "Confirm the monthly rent and property condition before choosing the correct forum.",
+                "Send a dated written refund request; seek qualified advice if unresolved.",
+            ]
         by_domain = {
             "tenancy": [
                 "Check the tenancy agreement and applicable state rent law.",

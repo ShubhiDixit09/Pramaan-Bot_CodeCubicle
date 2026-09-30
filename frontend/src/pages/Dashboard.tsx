@@ -30,7 +30,7 @@ export default function Dashboard() {
         description="Organise a legal issue, retrieve relevant law, and turn it into a clear next action."
         action={<Link className="button primary" to="/cases/new"><FilePlus2 size={18} /> Start a case</Link>}
       />
-      {error && <ErrorBanner message={`${error} Start the backend with ./scripts/dev.sh.`} />}
+      {error && <ErrorBanner message={`${error} Start the backend with .\\.venv\\Scripts\\python.exe backend\\run.py.`} />}
       <section className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon green"><FolderOpen size={21} /></div>
@@ -54,7 +54,7 @@ export default function Dashboard() {
           <Loading />
         ) : cases.length === 0 ? (
           <div className="empty-row">
-            <span>No cases yet. Create one to begin your private workspace.</span>
+            <span>No cases yet. Create one or load the landlord deposit example.</span>
             <Link to="/cases/new">Create a case <ArrowRight size={16} /></Link>
           </div>
         ) : (

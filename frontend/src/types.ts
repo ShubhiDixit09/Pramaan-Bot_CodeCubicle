@@ -21,6 +21,7 @@ export type Citation = {
   jurisdiction: string
   relevance: number
   source_url?: string
+  support_level?: 'direct' | 'contextual'
 }
 
 export type Analysis = {

@@ -6,11 +6,14 @@ import { EmptyState, ErrorBanner, Loading, PageHeader } from '../components'
 import { localStore } from '../store'
 import type { Analysis, CaseRecord } from '../types'
 
+const depositQuestion =
+  'What steps should I take to recover the ₹25,000 deposit, challenge the undocumented painting and cleaning deductions, and prepare a formal notice?'
+
 export default function Workspace() {
   const params = useParams()
   const caseId = params.caseId || localStore.getCaseId()
   const [caseRecord, setCaseRecord] = useState<CaseRecord | null>(null)
-  const [analysis, setAnalysis] = useState<Analysis | null>(localStore.getAnalysis())
+  const [analysis, setAnalysis] = useState<Analysis | null>(localStore.getAnalysis(caseId))
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -18,7 +21,11 @@ export default function Workspace() {
   useEffect(() => {
     if (!caseId) return
     localStore.setCaseId(caseId)
-    api.case(caseId).then(setCaseRecord).catch((err: Error) => setError(err.message))
+    setAnalysis(localStore.getAnalysis(caseId))
+    api.case(caseId).then((record) => {
+      setCaseRecord(record)
+      setMessage(record.title === 'Landlord is refusing to return my security deposit' ? depositQuestion : '')
+    }).catch((err: Error) => setError(err.message))
   }, [caseId])
 
   const submit = async (event: FormEvent) => {
@@ -29,7 +36,7 @@ export default function Workspace() {
     try {
       const result = await api.analyze(caseId, message, caseRecord.language)
       setAnalysis(result)
-      localStore.setAnalysis(result)
+      localStore.setAnalysis(caseId, result)
       setMessage('')
       const refreshed = await api.case(caseId)
       setCaseRecord(refreshed)
@@ -94,7 +101,11 @@ export default function Workspace() {
               </ol>
               <div className="citations-mini">
                 {analysis.citations.map((citation) => (
-                  <span key={citation.id}>{citation.act} · {citation.section}</span>
+                  citation.source_url ? (
+                    <a key={citation.id} href={citation.source_url} target="_blank" rel="noreferrer" title="Open source text">
+                      {citation.act} · {citation.section}
+                    </a>
+                  ) : <span key={citation.id}>{citation.act} · {citation.section}</span>
                 ))}
               </div>
             </div>
@@ -129,6 +140,7 @@ export default function Workspace() {
               <div className="metric"><span>Citation coverage</span><strong>{analysis.trust_report.citation_coverage}%</strong></div>
               <div className="metric"><span>Grounding</span><strong>{analysis.trust_report.grounding_score}%</strong></div>
               <div className="check-line"><ShieldCheck size={17} /><span>PII {analysis.trust_report.pii_safe ? 'protected' : 'needs review'}</span></div>
+              <p className="trust-caveat">{analysis.trust_report.findings[0]}</p>
               <Link className="text-link" to="/trust">Open full report</Link>
             </>
           ) : (

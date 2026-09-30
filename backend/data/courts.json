@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Delhi State Legal Services Authority",
+    "type": "Legal aid",
+    "jurisdiction": "Delhi",
+    "address": "Patiala House Courts Complex, New Delhi",
+    "note": "Verify the current office details before visiting."
+  },
+  {
+    "name": "District Consumer Disputes Redressal Commission",
+    "type": "Consumer forum",
+    "jurisdiction": "District-specific",
+    "address": "Use the official commission directory for the relevant district.",
+    "note": "Jurisdiction depends on statutory conditions and case facts."
+  }
+]
+
+
+

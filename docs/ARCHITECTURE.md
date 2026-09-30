@@ -6,8 +6,8 @@ flowchart TD
     B --> C["ShieldAI input guards"]
     C --> D["Intent + hierarchical retrieval"]
     D --> E["Local statutory corpus"]
-    D --> F["Ollama / Gemma"]
-    F --> G["Output grounding checks"]
+    D --> F["Source-led tenancy answer or Ollama / Gemma"]
+    F --> G["Section-reference and safety checks"]
     G --> H["Guidance / checklist / draft"]
     H --> I["SQLite + audit trail"]
 ```
@@ -41,10 +41,11 @@ case writes.
 The included corpus is deliberately small and clearly marked as demo data.
 Retrieval uses a dependency-free hierarchical TF-IDF implementation:
 
-1. score Acts against the query;
-2. boost the top matching Acts;
-3. rank individual sections;
-4. provide the selected text and source metadata to the local model.
+1. classify the issue and restrict retrieval to matching legal topics;
+2. score Acts against the saved case facts and question;
+3. boost the top matching Acts and rank individual sections;
+4. provide selected text and source metadata to the answer engine. The deposit-refund
+   demo uses a constrained source-led answer; other issues can use the local model.
 
 The `LegalCorpus.search()` contract is intentionally small so it can be replaced
 with ChromaDB and a local multilingual embedding model without changing routes
@@ -55,6 +56,8 @@ or frontend code.
 Ollama is optional at startup. When unavailable, PRAMAAN BOT produces a constrained
 extractive response from retrieved corpus entries. This makes the full case,
 retrieval, checklist, drafting, and trust-report workflow demonstrable on a
-machine that has not yet downloaded a multi-gigabyte model.
+machine that has not yet downloaded a multi-gigabyte model. The trust score is a
+limited answer-review heuristic, not verification of source currency, documents,
+legal applicability, or the citizen's case outcome.
 
 

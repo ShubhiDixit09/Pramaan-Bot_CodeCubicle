@@ -1,0 +1,47 @@
+[
+  {
+    "id": "consumer-complaint",
+    "title": "File a Consumer Complaint",
+    "authority": "District Consumer Disputes Redressal Commission",
+    "fee": "As prescribed for the claim value",
+    "deadline": "Check the current statutory limitation period and exceptions",
+    "steps": [
+      {"id": "collect", "title": "Collect invoice, payment proof, warranty and correspondence"},
+      {"id": "notice", "title": "Send a written grievance to the seller/service provider"},
+      {"id": "relief", "title": "Calculate and clearly state the relief requested"},
+      {"id": "file", "title": "File before the commission with jurisdiction"},
+      {"id": "track", "title": "Save acknowledgement and track the matter"}
+    ]
+  },
+  {
+    "id": "rti-request",
+    "title": "Submit an RTI Request",
+    "authority": "Public Information Officer of the concerned public authority",
+    "fee": "Usually ₹10, subject to applicable rules and exemptions",
+    "deadline": "Response timelines are governed by Section 7 and applicable rules",
+    "steps": [
+      {"id": "authority", "title": "Identify the correct public authority and PIO"},
+      {"id": "questions", "title": "Write precise numbered requests for existing records"},
+      {"id": "fee", "title": "Attach the prescribed fee or exemption proof"},
+      {"id": "submit", "title": "Submit and retain acknowledgement"},
+      {"id": "appeal", "title": "Prepare a first appeal if no proper response is received"}
+    ]
+  },
+  {
+    "id": "police-complaint",
+    "title": "Prepare a Police Complaint",
+    "authority": "Officer in charge of the appropriate police station",
+    "fee": "No filing fee",
+    "deadline": "Act promptly; urgent danger requires immediate emergency help",
+    "steps": [
+      {"id": "timeline", "title": "Write a chronological, factual account"},
+      {"id": "evidence", "title": "List and preserve supporting evidence"},
+      {"id": "complaint", "title": "Submit the signed complaint"},
+      {"id": "receipt", "title": "Obtain diary number or acknowledgement"},
+      {"id": "escalate", "title": "Escalate through the lawful channel if required"}
+    ]
+  }
+]
+
+
+

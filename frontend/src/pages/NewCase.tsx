@@ -5,6 +5,20 @@ import { api } from '../api'
 import { ErrorBanner, PageHeader } from '../components'
 import { localStore } from '../store'
 
+const depositExample = {
+  title: 'Landlord is refusing to return my security deposit',
+  description:
+    'Main Delhi mein rented flat mein rehti thi. Maine 1 July 2025 ko ₹25,000 security deposit diya tha. ' +
+    'Main 30 June 2026 ko flat vacate kar chuki hoon and keys bhi landlord ko return kar di thi. ' +
+    'Landlord keh rahe hain ki painting aur cleaning ke charges cut honge, but unhone koi proper bill ya written calculation share nahi ki. ' +
+    'Mere repeated calls aur WhatsApp messages ke baad bhi deposit return nahi kiya gaya. ' +
+    'Mere paas rent agreement, UPI payment screenshot, keys handover ke messages aur WhatsApp chats hain. ' +
+    'Main jaana chahti hoon ki mujhe kya steps lene chahiye aur landlord ko bhejne ke liye ek formal notice draft chahiye.',
+  jurisdiction: 'Delhi',
+  language: 'Hinglish' as const,
+  urgency: 'medium' as const,
+}
+
 export default function NewCase() {
   const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
@@ -24,6 +38,7 @@ export default function NewCase() {
     try {
       const created = await api.createCase(form)
       localStore.setCaseId(created.id)
+      localStore.clearAnalysis()
       navigate(`/workspace/${created.id}`)
     } catch (err) {
       setError((err as Error).message)
@@ -42,6 +57,9 @@ export default function NewCase() {
       {error && <ErrorBanner message={error} />}
       <form className="form-layout" onSubmit={submit}>
         <div className="panel form-panel">
+          <button className="example-link" type="button" onClick={() => setForm(depositExample)}>
+            Load landlord deposit example
+          </button>
           <div className="field">
             <label htmlFor="title">Short case title</label>
             <input
