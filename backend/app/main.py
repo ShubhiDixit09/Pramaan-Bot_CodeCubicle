@@ -11,7 +11,7 @@ from .data import CHANGES, EVIDENCE, MISSIONS, RECORDS, REVIEWS, RUN_EVENTS, SOU
 
 
 app = FastAPI(
-    title="Pramaan Evidence API",
+    title="Pranaam Bot Evidence API",
     version="0.1.0",
     description="Mission, evidence, dataset and public-source intelligence API.",
 )
@@ -37,7 +37,7 @@ class ReviewDecision(BaseModel):
 def health() -> dict:
     return {
         "status": "ok",
-        "product": "Pramaan",
+        "product": "Pranaam Bot",
         "mode": "verified-only",
         "capabilities": ["missions", "datasets", "provenance", "changes", "review", "india-code"],
     }
