@@ -1,93 +1,61 @@
-export type Mission = {
+export type CaseRecord = {
   id: string
-  name: string
-  prompt: string
+  title: string
+  description: string
+  jurisdiction: string
+  language: 'English' | 'Hindi' | 'Hinglish'
+  urgency: 'low' | 'medium' | 'high'
   status: string
-  coverage: number
-  record_count: number
-  change_count: number
-  last_run: string
-  next_run: string
-  cadence: string
+  revision: number
+  created_at: string
+  updated_at: string
+  related?: Record<string, Array<Record<string, unknown>>>
 }
 
-export type RunEvent = {
-  time: string
-  type: string
-  message: string
-  detail: string
-}
-
-export type RecordRow = {
+export type Citation = {
   id: string
-  organisation: string
-  opportunity: string
+  act: string
+  section: string
+  title: string
+  text: string
+  jurisdiction: string
+  relevance: number
+  source_url?: string
+}
+
+export type Analysis = {
+  intent: { domain: string; issue: string; confidence: number }
+  answer: string
+  next_steps: string[]
+  citations: Citation[]
+  guardrails: {
+    allowed: boolean
+    legal_topic: boolean
+    injection_detected: boolean
+    masked_text: string
+    pii_types: string[]
+    findings: string[]
+  }
+  trust_report: TrustReport
+  model_mode: string
+}
+
+export type TrustReport = {
+  score: number
+  citation_coverage: number
+  grounding_score: number
+  pii_safe: boolean
+  disclaimer_present: boolean
+  findings: string[]
+}
+
+export type Procedure = {
+  id: string
+  title: string
+  authority: string
+  fee: string
   deadline: string
-  eligibility: string
-  value: string
-  location: string
-  status: string
-  confidence: number
-  sources: number
-  changed: boolean
-}
-
-export type Evidence = {
-  field: string
-  value: string
-  confidence: number
-  components: Record<string, number>
-  resolution: string
-  observations: Array<{
-    relation: string
-    source: string
-    url: string
-    locator: string
-    excerpt: string
-    fetched: string
-    authority: number
-  }>
-}
-
-export type Change = {
-  id: string
-  record_id: string
-  kind: string
-  impact: string
-  title: string
-  entity: string
-  before: string | null
-  after: string
-  source: string
-  time: string
-  confidence: number
-}
-
-export type Review = {
-  id: string
-  priority: string
-  title: string
-  record: string
-  field: string
-  recommended: string
-  reason: string
-  confidence: number
-  sources: string[]
-}
-
-export type Source = {
-  id: string
-  name: string
-  owner: string
-  type: string
-  url: string
-  authority: number
-  freshness: string
-  status: string
-  records: number
-  last_checked: string
-  authority_class?: string
-  connector?: string
-  verification?: string
-  notes?: string
+  progress?: number
+  run_id?: string
+  steps: { id: string; title: string; completed?: boolean }[]
 }

@@ -1,0 +1,14 @@
+services:
+  pramaan-api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      PRAMAAN_OLLAMA_URL: http://host.docker.internal:11434
+      PRAMAAN_CORS_ORIGINS: http://localhost:5173,http://localhost:8000,http://127.0.0.1:8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+

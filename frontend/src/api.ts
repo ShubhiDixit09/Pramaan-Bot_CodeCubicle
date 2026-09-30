@@ -1,26 +1,73 @@
-import type { Change, Evidence, Mission, RecordRow, Review, RunEvent, Source } from './types'
+import type { Analysis, CaseRecord, Citation, Procedure } from './types'
 
-const request = async <T,>(path: string, unavailable: T, init?: RequestInit): Promise<T> => {
-  try {
-    const response = await fetch(`/api${path}`, init)
-    if (!response.ok) throw new Error(String(response.status))
-    return await response.json() as T
-  } catch {
-    return unavailable
+export const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...init?.headers,
+    },
+  })
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({ detail: response.statusText }))
+    throw new Error(body.detail || 'The local service could not complete the request.')
   }
+  return response.json() as Promise<T>
 }
 
+export const idempotencyKey = (prefix: string) =>
+  `${prefix}-${Date.now()}-${crypto.randomUUID()}`
+
 export const api = {
-  overview: () => request<{ metrics: Record<string, number>; missions: Mission[]; events: RunEvent[] }>('/overview', {
-    metrics: { active_missions: 0, sources_monitored: 0, changes_today: 0, open_conflicts: 0, coverage: 0 }, missions: [], events: [],
-  }),
-  missions: () => request<Mission[]>('/missions', []),
-  records: () => request<{ dataset: string; version: number; published: string; coverage: number; total: number; records: RecordRow[] }>('/datasets/opportunities/records', {
-    dataset: 'India AI Opportunity Radar', version: 0, published: '', coverage: 0, total: 0, records: [],
-  }),
-  evidence: (recordId: string) => request<Evidence | null>(`/records/${recordId}/evidence`, null),
-  changes: () => request<Change[]>('/changes', []),
-  reviews: () => request<Review[]>('/reviews', []),
-  sources: () => request<Source[]>('/sources', []),
-  legalSearch: (query: string) => request<{ query: string; source: string; live: boolean; results: Array<Record<string, string | number>>; error?: string }>(`/intelligence/legal/search?q=${encodeURIComponent(query)}`, { query, source: 'India Code', live: false, results: [] }),
+  health: () =>
+    request<{
+      status: string
+      privacy_mode: string
+      corpus_documents: number
+      ollama: { available: boolean; configured_model: string; models: string[] }
+    }>('/health'),
+  cases: () => request<CaseRecord[]>('/cases'),
+  case: (id: string) => request<CaseRecord>(`/cases/${id}`),
+  createCase: (payload: Omit<CaseRecord, 'id' | 'status' | 'revision' | 'created_at' | 'updated_at'>) =>
+    request<CaseRecord>('/cases', { method: 'POST', body: JSON.stringify(payload) }),
+  analyze: (id: string, message: string, language: string) =>
+    request<Analysis>(`/cases/${id}/analyze`, {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        language,
+        idempotency_key: idempotencyKey('analyze'),
+      }),
+    }),
+  research: (query: string) =>
+    request<{ results: Citation[]; guardrails: Analysis['guardrails'] }>(
+      `/research?query=${encodeURIComponent(query)}`,
+    ),
+  procedures: () => request<Procedure[]>('/procedures'),
+  startProcedure: (caseId: string, procedureId: string) =>
+    request<Procedure>(`/cases/${caseId}/procedures`, {
+      method: 'POST',
+      body: JSON.stringify({
+        procedure_id: procedureId,
+        idempotency_key: idempotencyKey('procedure'),
+      }),
+    }),
+  updateStep: (runId: string, stepId: string, completed: boolean) =>
+    request<Procedure>(`/procedure-runs/${runId}/steps/${stepId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        completed,
+        idempotency_key: idempotencyKey('step'),
+      }),
+    }),
+  createDraft: (
+    caseId: string,
+    payload: { document_type: string; recipient: string; requested_relief: string },
+  ) =>
+    request<{ id: string; title: string; content: string }>(`/cases/${caseId}/drafts`, {
+      method: 'POST',
+      body: JSON.stringify({ ...payload, idempotency_key: idempotencyKey('draft') }),
+    }),
 }
