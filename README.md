@@ -164,20 +164,43 @@ React :5173  ->  FastAPI :8000  ->  Ollama :11434
 
 Prerequisites: Python 3.12+, Node.js 20+, and optionally Ollama.
 
+In PowerShell, change to the cloned repository directory once. The commands below all
+run from that same directory.
+
 ```powershell
-py -m venv .venv
-.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
-npm --prefix frontend install
+# Run once from the repository root
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup.ps1
 
-# Terminal 1
-.venv\Scripts\python.exe backend\run.py
+# Terminal 1, from the repository root
+.\.venv\Scripts\python.exe backend\run.py
 
-# Terminal 2
-npm --prefix frontend run dev
+# Terminal 2, from the repository root
+Set-Location .\frontend
+npm run dev
 ```
+
+Wait for `Setup complete.` before starting either server. If setup reports an error,
+install the missing dependency first. Do not run `Set-Location .\Pramaan-Bot_CodeCubicle`
+again when your prompt already ends in `Pramaan-Bot_CodeCubicle>`.
 
 Open `http://127.0.0.1:5173`. API documentation is available at
 `http://127.0.0.1:8000/docs`.
+
+### If npm reports `ENOTEMPTY` or Vite cannot resolve `lucide-react`
+
+Stop the running frontend with Ctrl+C. From the repository root, rename the incomplete
+dependency folder so it is recoverable, then reinstall exactly from the lockfile:
+
+```powershell
+Rename-Item -LiteralPath .\frontend\node_modules -NewName "node_modules.incomplete-$(Get-Date -Format yyyyMMdd-HHmmss)"
+Set-Location .\frontend
+npm ci
+npm run dev
+```
+
+The renamed folder can be removed after the new install works. If the backend reports
+`No module named 'uvicorn'`, rerun `setup.ps1`; it now stops on a failed Python install
+instead of incorrectly reporting success.
 
 ### Enable local Gemma
 
