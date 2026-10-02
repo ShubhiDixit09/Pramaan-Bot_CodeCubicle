@@ -21,7 +21,7 @@ class Settings:
         value.strip()
         for value in os.getenv(
             "PRAMAAN_CORS_ORIGINS",
-            "http://localhost:5173,http://127.0.0.1:5173",
+            "http://localhost:5174,http://127.0.0.1:5174",
         ).split(",")
         if value.strip()
     )

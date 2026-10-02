@@ -133,7 +133,7 @@ model URL is rejected during startup.
 ## Privacy and safety boundary
 
 ```text
-React :5173  ->  FastAPI :8000  ->  Ollama :11434
+React :5174  ->  FastAPI :8000  ->  Ollama :11434
      localhost       localhost        localhost
 
            SQLite + evidence + generated PDFs
@@ -188,7 +188,7 @@ Wait for `Setup complete.` before starting either server. If setup reports an er
 install the missing dependency first. Do not run `Set-Location .\Pramaan-Bot_CodeCubicle`
 again when your prompt already ends in `Pramaan-Bot_CodeCubicle>`.
 
-Open `http://127.0.0.1:5173`. API documentation is available at
+Open `http://127.0.0.1:5174`. API documentation is available at
 `http://127.0.0.1:8000/docs`.
 
 ### If npm reports `ENOTEMPTY` or Vite cannot resolve `lucide-react`

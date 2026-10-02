@@ -16,7 +16,7 @@ flowchart TD
 
 The normal local deployment uses:
 
-- React at `127.0.0.1:5173`
+- React at `127.0.0.1:5174`
 - PRAMAAN BOT API at `127.0.0.1:8000`
 - Ollama at `127.0.0.1:11434`
 - SQLite and generated PDFs inside `./data`
