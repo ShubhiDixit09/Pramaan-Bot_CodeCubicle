@@ -14,6 +14,7 @@ import '@fontsource/noto-serif/latin-400.css'
 import '@fontsource/noto-serif/latin-600.css'
 import '@fontsource/noto-serif/latin-700.css'
 import './styles.css'
+import './theme.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
