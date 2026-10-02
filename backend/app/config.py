@@ -29,6 +29,7 @@ class Settings:
     procedures_path: Path = BACKEND_ROOT / "data" / "procedures.json"
     courts_path: Path = BACKEND_ROOT / "data" / "courts.json"
     output_dir: Path = PROJECT_ROOT / "data" / "generated"
+    evidence_dir: Path = PROJECT_ROOT / "data" / "evidence"
 
 
 settings = Settings()

@@ -151,7 +151,7 @@ React :5173  ->  FastAPI :8000  ->  Ollama :11434
   stated limitation; without an attached source it is zero. It is not a probability of legal success or proof that documents
   and legal conclusions are correct.
 - Every response receives a legal-information disclaimer.
-- Evidence is content-hashed on ingestion; a hash does not establish authenticity or prove the facts asserted in a file.
+- Uploaded evidence originals are retained under the local `data/evidence/` directory and content-hashed; a hash does not establish authenticity or prove the facts asserted in a file. Previously registered metadata-only evidence cannot be downloaded.
 - SQLCipher configuration fails closed if a key is supplied without a cipher-capable driver.
 
 ## Three-minute demonstration

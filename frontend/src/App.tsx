@@ -1,19 +1,19 @@
 import {
   BookOpen,
-  Bot,
   BriefcaseBusiness,
   CircleGauge,
   FilePenLine,
   FolderPlus,
   LayoutDashboard,
   Menu,
+  Home,
   Scale,
   ShieldCheck,
   Workflow,
   X,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
+import { Link, NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { api } from './api'
 import Dashboard from './pages/Dashboard'
 import Drafts from './pages/Drafts'
@@ -37,6 +37,8 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [health, setHealth] = useState<'checking' | 'online' | 'offline'>('checking')
   const [ollama, setOllama] = useState(false)
+  const location = useLocation()
+  const currentPage = navigation.find((item) => item.to !== '/' && location.pathname.startsWith(item.to))?.label || (location.pathname.startsWith('/workspace') ? 'Case workspace' : 'Dashboard')
 
   useEffect(() => {
     api
@@ -52,10 +54,10 @@ export default function App() {
     <div className="app-shell">
       <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
         <div className="brand">
-          <div className="brand-mark"><Scale size={23} /></div>
+          <div className="brand-mark"><Scale size={31} strokeWidth={1.35} /></div>
           <div>
-            <strong>Pramaan Bot</strong>
-            <span>Local legal action engine</span>
+            <strong>PramaanBot</strong>
+            <span>Your legal action workspace</span>
           </div>
           <button className="icon-button close-menu" onClick={() => setMenuOpen(false)}>
             <X size={20} />
@@ -82,6 +84,7 @@ export default function App() {
             <span>Case data remains on this device.</span>
           </div>
         </div>
+        <div className="sidebar-profile"><span>PB</span><div><strong>Personal workspace</strong><small>Local account</small></div></div>
       </aside>
       {menuOpen && <button className="backdrop" onClick={() => setMenuOpen(false)} />}
       <div className="main-column">
@@ -90,12 +93,13 @@ export default function App() {
             <Menu size={21} />
           </button>
           <div className="breadcrumb">
-            <Bot size={17} />
-            <span>Citizen workspace</span>
+            <Link to="/"><Home size={17} /> <span>My cases</span></Link>
+            <span className="breadcrumb-slash">/</span>
+            <strong>{currentPage}</strong>
           </div>
           <div className="status-cluster">
             <span className={`status-dot ${health}`} />
-            <span>{health === 'online' ? 'Local API ready' : health === 'offline' ? 'API offline' : 'Checking API'}</span>
+            <span>{health === 'online' ? 'Local workspace ready' : health === 'offline' ? 'API offline' : 'Checking API'}</span>
             <span className="divider" />
             <CircleGauge size={16} />
             <span>{ollama ? 'Gemma connected' : 'Safe fallback mode'}</span>

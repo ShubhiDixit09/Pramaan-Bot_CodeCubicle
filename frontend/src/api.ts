@@ -32,6 +32,11 @@ export const api = {
   case: (id: string) => request<CaseRecord>(`/cases/${id}`),
   createCase: (payload: Omit<CaseRecord, 'id' | 'status' | 'revision' | 'created_at' | 'updated_at'>) =>
     request<CaseRecord>('/cases', { method: 'POST', body: JSON.stringify(payload) }),
+  updateCase: (id: string, payload: { title: string; description: string; jurisdiction: string; expected_revision: number }) =>
+    request<CaseRecord>(`/cases/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ ...payload, idempotency_key: idempotencyKey('case-update') }),
+    }),
   analyze: (id: string, message: string, language: string) =>
     request<Analysis>(`/cases/${id}/analyze`, {
       method: 'POST',
@@ -41,6 +46,21 @@ export const api = {
         idempotency_key: idempotencyKey('analyze'),
       }),
     }),
+  uploadEvidence: async (caseId: string, file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    const response = await fetch(`${API_URL}/cases/${caseId}/evidence`, {
+      method: 'POST',
+      body: form,
+    })
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({ detail: response.statusText }))
+      throw new Error(body.detail || 'The file could not be saved locally.')
+    }
+    return response.json() as Promise<{ id: string; filename: string; stored_locally: boolean; vision_status: string }>
+  },
+  evidenceFileUrl: (caseId: string, evidenceId: string) =>
+    `${API_URL}/cases/${caseId}/evidence/${evidenceId}/file`,
   research: (query: string) =>
     request<{ results: Citation[]; guardrails: Analysis['guardrails'] }>(
       `/research?query=${encodeURIComponent(query)}`,

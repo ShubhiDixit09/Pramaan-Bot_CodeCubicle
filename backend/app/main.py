@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -156,33 +157,73 @@ async def upload_evidence(case_id: str, file: UploadFile = File(...)) -> dict:
     if media_type.startswith("text/") or Path(file.filename or "").suffix.lower() in {".txt", ".md"}:
         extracted = content.decode("utf-8", errors="replace")[:50_000]
     evidence_id = str(uuid4())
+    evidence_directory = settings.evidence_dir / case_id
+    evidence_directory.mkdir(parents=True, exist_ok=True)
+    extension = Path(file.filename or "").suffix.lower()[:16]
+    stored_file = evidence_directory / f"{evidence_id}{extension}"
+    temporary_file = evidence_directory / f".{evidence_id}-{uuid4()}.uploading"
+    try:
+        temporary_file.write_bytes(content)
+        os.replace(temporary_file, stored_file)
+    finally:
+        temporary_file.unlink(missing_ok=True)
     metadata = {
-        "parser": "plain-text" if extracted else "stored-for-local-vision-model",
+        "parser": "plain-text" if extracted else "not-extracted",
         "vision_status": (
             "Text extracted locally"
             if extracted
-            else "Image/PDF saved as metadata; connect a local vision-capable Ollama model for extraction"
+            else "Original saved locally; text has not been extracted or verified"
         ),
+        "stored_locally": True,
     }
-    with database.unit_of_work() as connection:
-        connection.execute(
-            """
-            INSERT INTO evidence(
-                id, case_id, filename, media_type, sha256, extracted_text, metadata_json, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                evidence_id,
-                case_id,
-                Path(file.filename or "evidence").name,
-                media_type,
-                hashlib.sha256(content).hexdigest(),
-                extracted,
-                Database.encode(metadata),
-                utc_now(),
-            ),
-        )
+    try:
+        with database.unit_of_work() as connection:
+            connection.execute(
+                """
+                INSERT INTO evidence(
+                    id, case_id, filename, media_type, sha256, extracted_text, metadata_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    evidence_id,
+                    case_id,
+                    Path(file.filename or "evidence").name,
+                    media_type,
+                    hashlib.sha256(content).hexdigest(),
+                    extracted,
+                    Database.encode(metadata),
+                    utc_now(),
+                ),
+            )
+    except Exception:
+        stored_file.unlink(missing_ok=True)
+        raise
     return {"id": evidence_id, "filename": file.filename, "media_type": media_type, **metadata}
+
+
+@app.get("/api/cases/{case_id}/evidence/{evidence_id}/file")
+def download_evidence(case_id: str, evidence_id: str) -> FileResponse:
+    try:
+        UUID(case_id)
+        UUID(evidence_id)
+        repository.get(case_id)
+    except (ValueError, NotFoundError) as error:
+        raise HTTPException(status_code=404, detail="Evidence not found") from error
+    with database.connect() as connection:
+        row = connection.execute(
+            "SELECT filename, media_type, metadata_json FROM evidence WHERE id = ? AND case_id = ?",
+            (evidence_id, case_id),
+        ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Evidence not found")
+    metadata = json.loads(row["metadata_json"])
+    if not metadata.get("stored_locally"):
+        raise HTTPException(status_code=404, detail="Original file was not retained for this older record")
+    extension = Path(row["filename"]).suffix.lower()[:16]
+    stored_file = settings.evidence_dir / case_id / f"{evidence_id}{extension}"
+    if not stored_file.is_file():
+        raise HTTPException(status_code=404, detail="Stored file not found")
+    return FileResponse(stored_file, media_type=row["media_type"], filename=row["filename"])
 
 
 @app.get("/api/procedures")
