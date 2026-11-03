@@ -1,0 +1,154 @@
+[
+  {
+    "id": "cpa-2019-s35",
+    "act": "Consumer Protection Act, 2019",
+    "section": "Section 35",
+    "title": "Manner in which complaint shall be made",
+    "text": "A consumer complaint may be filed with the District Commission by a consumer, a recognised consumer association, or other persons authorised by the Act.",
+    "keywords": "consumer complaint defective product refund service invoice warranty district commission",
+    "domains": ["consumer"],
+    "issues": ["defective_goods_or_refund"],
+    "jurisdiction": "India",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/15256/5/A2019-35.pdf"
+  },
+  {
+    "id": "cpa-2019-s34",
+    "act": "Consumer Protection Act, 2019",
+    "section": "Section 34",
+    "title": "Jurisdiction of District Commission",
+    "text": "The District Commission has territorial and pecuniary jurisdiction subject to the conditions prescribed by the Act.",
+    "keywords": "consumer district commission jurisdiction seller complainant residence",
+    "domains": ["consumer"],
+    "issues": ["defective_goods_or_refund"],
+    "jurisdiction": "India",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/15256/5/A2019-35.pdf"
+  },
+  {
+    "id": "rti-2005-s6",
+    "act": "Right to Information Act, 2005",
+    "section": "Section 6",
+    "title": "Request for obtaining information",
+    "text": "A person seeking information may make a request in writing or through electronic means to the concerned Public Information Officer, specifying the particulars of information sought.",
+    "keywords": "rti information public authority pio application records",
+    "domains": ["information"],
+    "issues": ["right_to_information"],
+    "jurisdiction": "India",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/2065/1/aA2005-22.pdf"
+  },
+  {
+    "id": "rti-2005-s7",
+    "act": "Right to Information Act, 2005",
+    "section": "Section 7",
+    "title": "Disposal of request",
+    "text": "The Public Information Officer shall deal with an information request within the statutory period, subject to the Act's exceptions and special timelines.",
+    "keywords": "rti response deadline thirty days life liberty",
+    "domains": ["information"],
+    "issues": ["right_to_information"],
+    "jurisdiction": "India",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/2065/1/aA2005-22.pdf"
+  },
+  {
+    "id": "bnss-2023-s173",
+    "act": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+    "section": "Section 173",
+    "title": "Information in cognizable cases",
+    "text": "Information relating to a cognizable offence may be given to the officer in charge of a police station, including by electronic communication in the manner provided.",
+    "keywords": "fir police cognizable offence complaint electronic communication",
+    "domains": ["criminal"],
+    "issues": ["police_complaint"],
+    "jurisdiction": "India",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/20099/1/eng.pdf"
+  },
+  {
+    "id": "mv-1988-s200",
+    "act": "Motor Vehicles Act, 1988",
+    "section": "Section 200",
+    "title": "Composition of certain offences",
+    "text": "Specified offences under the Motor Vehicles Act may be compounded by authorised officers in accordance with applicable notification and procedure.",
+    "keywords": "traffic challan vehicle fine compound offence rto",
+    "domains": ["traffic"],
+    "issues": ["traffic_challan"],
+    "jurisdiction": "India",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/15636/1/a1988_59.pdf"
+  },
+  {
+    "id": "tpa-1882-s106",
+    "act": "Transfer of Property Act, 1882",
+    "section": "Section 106",
+    "title": "Duration of certain leases in absence of written contract",
+    "text": "In the absence of a contract or local law to the contrary, certain leases are terminable by written notice as described in the section.",
+    "keywords": "tenant landlord rent lease eviction notice termination property",
+    "domains": ["tenancy"],
+    "issues": ["eviction_notice"],
+    "support_level": "contextual",
+    "jurisdiction": "India",
+    "source_url": "https://session.delhi.gov.in/session/transfer-property-act"
+  },
+  {
+    "id": "contract-1872-s37",
+    "act": "Indian Contract Act, 1872",
+    "section": "Section 37",
+    "title": "Obligation of parties to contracts",
+    "text": "Parties to a contract must perform or offer to perform their respective promises unless performance is dispensed with or excused by law. Whether a landlord promised to return a deposit, and on what terms, must be checked in the actual tenancy agreement.",
+    "keywords": "tenant landlord rental agreement security deposit refund contractual promise obligation return deposit",
+    "domains": ["tenancy"],
+    "issues": ["deposit_refund"],
+    "support_level": "contextual",
+    "jurisdiction": "India",
+    "source_url": "https://session.delhi.gov.in/session/indian-contract-act"
+  },
+  {
+    "id": "tpa-1882-s108m",
+    "act": "Transfer of Property Act, 1882",
+    "section": "Section 108(m)",
+    "title": "Condition of leased property and reasonable wear and tear",
+    "text": "In the absence of a contract or local usage to the contrary, the lessee must restore the property in as good a condition as at the start, subject to reasonable wear and tear or irresistible force. Whether cleaning or painting is deductible requires the agreement and evidence of the property's condition.",
+    "keywords": "tenant landlord tenancy security deposit painting cleaning deductions damage condition ordinary reasonable wear tear handover",
+    "domains": ["tenancy"],
+    "issues": ["deposit_refund"],
+    "support_level": "contextual",
+    "jurisdiction": "India",
+    "source_url": "https://session.delhi.gov.in/session/transfer-property-act"
+  },
+  {
+    "id": "drc-1958-s3c",
+    "act": "Delhi Rent Control Act, 1958",
+    "section": "Section 3(c)",
+    "title": "Act not to apply to premises with monthly rent above ₹3,500",
+    "text": "The Act does not apply to premises whose monthly rent exceeds ₹3,500. The tenant's monthly rent and other applicability conditions must be checked before suggesting a Rent Controller forum.",
+    "keywords": "Delhi rented flat landlord tenant monthly rent 3500 rent control applicability forum deposit",
+    "domains": ["tenancy"],
+    "issues": ["deposit_refund"],
+    "support_level": "contextual",
+    "jurisdiction": "Delhi",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/19223/1/a1958-59.pdf"
+  },
+  {
+    "id": "contract-1872-s73",
+    "act": "Indian Contract Act, 1872",
+    "section": "Section 73",
+    "title": "Compensation for loss or damage caused by breach of contract",
+    "text": "Where a contract is broken, the party who suffers may receive compensation for loss or damage caused by the breach that naturally arose in the usual course or was known as likely when the contract was made. This is a general contract remedy; it does not itself establish whether a particular security-deposit deduction is valid.",
+    "keywords": "tenant landlord tenancy security deposit refund rental agreement unpaid withheld deposit cleaning painting deductions breach proof",
+    "domains": ["tenancy"],
+    "issues": ["deposit_refund"],
+    "support_level": "contextual",
+    "jurisdiction": "India",
+    "source_url": "https://www.indiacode.nic.in/bitstream/123456789/2187/2/A187209.pdf"
+  },
+  {
+    "id": "lsa-1987-s12",
+    "act": "Legal Services Authorities Act, 1987",
+    "section": "Section 12",
+    "title": "Criteria for giving legal services",
+    "text": "Persons falling within specified categories are entitled to legal services, subject to the provisions of the Act.",
+    "keywords": "free legal aid dlsa nalsa lawyer eligibility women child scheduled caste income",
+    "domains": ["legal_aid"],
+    "issues": ["legal_aid"],
+    "jurisdiction": "India",
+    "source_url": "https://nalsa.gov.in/faqs/"
+  }
+]
+
+
+
