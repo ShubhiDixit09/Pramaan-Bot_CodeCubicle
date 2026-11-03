@@ -106,7 +106,7 @@ export default function App() {
         </div>
         <div className="context-strip">
           <div className="breadcrumb">
-            <Link to="/"><Home size={17} /> <span>My cases</span></Link>
+            <Link to="/"><Home size={17} /> <span>{isPublicDemo ? "Public research" : "My cases"}</span></Link>
             <span className="breadcrumb-slash">/</span>
             <strong>{currentPage}</strong>
           </div>
@@ -156,7 +156,7 @@ export default function App() {
             <div><strong>PramaanBot</strong><span>Digital public legal services prototype</span></div>
           </div>
           <div className="footer-links">
-            <Link to="/trust">Trust &amp; verification</Link>
+            <Link to={isPublicDemo ? "/research" : "/trust"}>{isPublicDemo ? "Legal sources" : "Trust & verification"}</Link>
             <Link to="/research">Legal sources</Link>
             <span>Legal information, not legal advice</span>
           </div>
