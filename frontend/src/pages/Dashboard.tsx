@@ -45,7 +45,7 @@ export default function Dashboard() {
       </section>
       <div className={`dashboard-connection ${error ? 'offline' : ''}`} role="status">
         <span className="connection-indicator" />
-        <strong>{loading ? 'Checking local case service' : error ? 'Local case service unavailable' : 'Local case service ready'}</strong>
+        <strong>{loading ? 'Checking encrypted browser case vault' : error ? 'Encrypted browser vault unavailable' : 'Encrypted browser vault ready'}</strong>
         <span>{error ? 'Saved case files cannot be loaded right now.' : loading ? 'One moment while your case register loads.' : `${active} open ${active === 1 ? 'matter' : 'matters'} · ${high} high priority`}</span>
       </div>
       <div className="dashboard-workbench">
@@ -58,7 +58,7 @@ export default function Dashboard() {
             <Loading />
           ) : error ? (
             <div className="register-empty">
-              <div className="register-empty-copy"><div><strong>Case register unavailable</strong><span>Start the local case service to view your saved files.</span></div></div>
+              <div className="register-empty-copy"><div><strong>Case register unavailable</strong><span>Unlock the browser vault to access your saved case files.</span></div></div>
             </div>
           ) : cases.length === 0 ? (
             <div className="register-empty">
