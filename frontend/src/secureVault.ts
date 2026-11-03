@@ -380,6 +380,10 @@ export async function downloadDraftPdf(draftId:string):Promise<void>{
 }
 
 export const templates=guideTemplates as Procedure[]
+export function getSavedGuide(caseId:string):Promise<Procedure|null>{
+  const runs=unlocked().runs.filter(x=>x.case_id===caseId)
+  return Promise.resolve(runs.length ? structuredClone(runs[runs.length-1]) : null)
+}
 export function startGuide(caseId:string,procedureId:string):Promise<Procedure>{
   return mutate(next=>{
     requireCase(next,caseId)
