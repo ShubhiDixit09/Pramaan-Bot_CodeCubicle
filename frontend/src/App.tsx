@@ -28,10 +28,28 @@ const navigation = [
   { to: '/trust', label: 'Verification' },
 ]
 
+function PublicLanding() {
+  return (
+    <section className="dashboard-hero" aria-labelledby="public-title">
+      <div className="dashboard-hero-copy">
+        <div className="dashboard-hero-topline"><span>PRAMAANBOT / PUBLIC RESEARCH</span><span>READ · VERIFY · LEARN</span></div>
+        <h1 id="public-title">Explore Indian law<br /><em>with sources.</em></h1>
+        <p>Search the project's small curated set of legal provisions and review public action guides. This preview uses real source ranking, not a generative AI model or an authenticated case-management backend.</p>
+        <div className="dashboard-hero-actions">
+          <Link className="hero-start" to="/research">Search legal sources</Link>
+          <Link className="hero-research" to="/procedures">View action guides</Link>
+        </div>
+        <p>Informational prototype only. Do not enter names, case details, identity numbers, or other confidential information. The public site does not store private case files.</p>
+      </div>
+    </section>
+  )
+}
+
 export default function App() {
   const [health, setHealth] = useState<'checking' | 'online' | 'offline'>('checking')
   const [ollama, setOllama] = useState(false)
   const location = useLocation()
+  const isPublicDemo = import.meta.env.PROD
   const currentPage = navigation.find((item) => item.to !== '/' && location.pathname.startsWith(item.to))?.label || (location.pathname.startsWith('/workspace') ? 'Case workspace' : 'Overview')
 
   useEffect(() => {
@@ -68,7 +86,7 @@ export default function App() {
             </span>
           </Link>
           <nav className="primary-nav" aria-label="Primary navigation">
-            {navigation.map(({ to, label }) => (
+            {navigation.filter(({ to }) => !isPublicDemo || ['/', '/research', '/procedures'].includes(to)).map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -82,7 +100,7 @@ export default function App() {
           <div className="header-actions">
             <span className="header-privacy" title={import.meta.env.DEV ? "Case data remains on your local backend" : "Public demonstration — configure a secure backend before handling case data"}>
               <ShieldCheck size={17} />
-              {import.meta.env.DEV ? 'Local & secure' : 'Public prototype'}
+              {import.meta.env.DEV ? 'Local & secure' : 'Research-only preview'}
             </span>
           </div>
         </div>
@@ -94,20 +112,31 @@ export default function App() {
           </div>
           <div className="status-cluster">
             <span className={`status-dot ${health}`} />
-            <span>{health === 'online' ? 'API connected' : health === 'offline' ? 'API offline' : 'Checking API'}</span>
+            <span>{health === 'online' ? (isPublicDemo ? 'Research API connected' : 'API connected') : health === 'offline' ? 'API offline' : 'Checking API'}</span>
             <span className="divider" />
             <CircleGauge size={16} />
-            <span>{ollama ? 'Gemma connected' : 'Safe fallback mode'}</span>
+            <span>{ollama ? 'Gemma connected' : isPublicDemo ? 'No generative AI' : 'Safe fallback mode'}</span>
           </div>
         </div>
       </header>
       <div className="main-column">
         <main id="main-content">
-          {!import.meta.env.DEV && health === 'offline' && (
-            <div role="alert" style={{ margin: '1rem 1.5rem', padding: '1rem', border: '1px solid #a87e39', borderRadius: '0.5rem' }}>
-              Backend not connected. This is a public demonstration interface, not a private legal workspace. Do not enter personal or case information until the secure backend is configured.
+          {isPublicDemo && (
+            <div role="status" style={{ margin: '1rem 1.5rem', padding: '1rem', border: '1px solid #a87e39', borderRadius: '0.5rem' }}>
+              Public research preview: only the curated legal corpus and action guides are available.
+              Private case files, uploads, document drafting and AI analysis require the authenticated local service.
+              Do not submit personal information.
+              {health === 'offline' ? ' The research API is currently unavailable.' : ''}
             </div>
           )}
+          {isPublicDemo ? (
+            <Routes>
+              <Route path="/" element={<PublicLanding />} />
+              <Route path="/research" element={<Research />} />
+              <Route path="/procedures" element={<Procedures />} />
+              <Route path="*" element={<Navigate to="/research" replace />} />
+            </Routes>
+          ) : (
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/cases/new" element={<NewCase />} />
@@ -119,6 +148,7 @@ export default function App() {
             <Route path="/trust" element={<Trust />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          )}
         </main>
         <footer className="site-footer">
           <div className="footer-identity">
