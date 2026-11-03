@@ -13,7 +13,12 @@ export default function Procedures() {
 
   useEffect(() => {
     api.procedures().then(setTemplates).catch((err: Error) => setError(err.message))
-  }, [])
+    if (caseId) {
+      api.savedGuide(caseId).then(saved => {
+        if (saved) setRun(saved)
+      }).catch((err: Error) => setError(err.message))
+    }
+  }, [caseId])
 
   const start = async (id: string) => {
     if (!caseId) return
