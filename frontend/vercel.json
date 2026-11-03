@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/cases/new",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/workspace",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/workspace/:caseId",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/research",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/procedures",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/drafts",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/trust",
+      "destination": "/index.html"
+    }
+  ]
+}
