@@ -34,6 +34,7 @@ def health() -> dict:
     return {
         "status": "ok",
         "privacy_mode": "public-readonly",
+        "ai_assist_configured": bool(__import__("os").getenv("GEMINI_API_KEY") or __import__("os").getenv("GOOGLE_API_KEY")),
         "corpus_documents": len(corpus.documents),
         "ollama": {"available": False, "configured_model": "not-enabled", "models": []},
         "case_storage": "unavailable",
