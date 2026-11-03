@@ -1,5 +1,12 @@
 # PRAMAAN BOT — Sovereign Legal Intelligence at the Edge
 
+<!-- LIVE DEPLOYMENT LINK -->
+
+[**Open live Pramaan Bot**](https://pramaan-bot-shubhidixit09.vercel.app/)
+
+**Deployment:** Vercel · Browser-encrypted private case vault, local evidence and drafts, public legal reference search, and explicitly consented Gemini responses for generic questions. Case data is not synchronized between devices; legal information is educational, not legal advice.
+<!-- END LIVE DEPLOYMENT LINK -->
+
 > Private, offline-first legal assistance for India - from a citizen's own words to
 > source-linked legal information, a reviewable action plan, and a ready-to-review document.
 
