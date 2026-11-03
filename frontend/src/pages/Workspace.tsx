@@ -263,10 +263,21 @@ export default function Workspace() {
           </section>}
 
           <form className="case-composer" onSubmit={submit}>
-            <label htmlFor="case-question">Add a detail to your case</label>
-            <div><textarea id="case-question" rows={2} required minLength={3} value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Tell Pramaan Bot what happened or ask what to do next…" /><button className="case-send" disabled={busy} aria-label={busy ? 'Analysing' : 'Analyse question'}><Send size={19} /></button></div>
-            <small>{busy ? 'Checking relevant local provisions…' : 'General legal information. Review the sources and facts before acting.'}</small>
+            <label htmlFor="case-question">{import.meta.env.PROD ? 'Ask a question using private local source search' : 'Add a detail to your case'}</label>
+            <div><textarea id="case-question" rows={2} required minLength={3} value={message} onChange={(event) => setMessage(event.target.value)} placeholder={import.meta.env.PROD ? 'Generic question, for example: What are consumer refund rights?' : 'Tell Pramaan Bot what happened or ask what to do next…'} /><button className="case-send" disabled={busy} aria-label={busy ? 'Analysing' : 'Analyse question'}><Send size={19} /></button></div>
+            <small>{busy ? 'Checking local legal provisions…' : import.meta.env.PROD ? 'The send arrow performs offline corpus search. Your case text stays encrypted in this browser.' : 'General legal information. Review the sources and facts before acting.'}</small>
           </form>
+          {import.meta.env.PROD && <div className="panel" style={{padding:'1.2rem',marginTop:12}}>
+            <strong>Optional: Gemini legal explanation</strong>
+            <p style={{margin:'0.6rem 0',fontSize:13}}>Only the question above will be sent to Google Gemini. Do not include case facts, names, addresses, evidence, phone numbers or IDs. Google's free tier may use submitted content to improve products. AI output is not legal advice or independently verified.</p>
+            <label style={{display:'flex',gap:9,alignItems:'flex-start',fontSize:13}}>
+              <input type="checkbox" checked={aiConsent} onChange={e=>setAiConsent(e.target.checked)} />
+              I consent to sending my generic question to Google Gemini and confirm it contains no personal or case information.
+            </label>
+            <button type="button" className="button secondary" style={{marginTop:12}} disabled={!aiConsent || busy || message.trim().length<6} onClick={() => void submitAI()}>
+              {busy ? 'Requesting AI explanation…' : 'Generate cited AI explanation'}
+            </button>
+          </div>}
         </div>
 
         <aside className="case-rail panel">
