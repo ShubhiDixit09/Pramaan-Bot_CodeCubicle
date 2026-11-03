@@ -1,6 +1,9 @@
 import type { Analysis, CaseRecord, Citation, Procedure } from './types'
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+// A public website must never silently call a visitor's localhost:8000.
+// Native development still targets the locally installed FastAPI service.
+export const API_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://127.0.0.1:8000/api' : '/api')
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
