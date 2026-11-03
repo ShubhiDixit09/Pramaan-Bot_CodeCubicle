@@ -14,7 +14,7 @@ from fastapi import FastAPI, HTTPException, Query
 from app.services.rag import LegalCorpus
 from app.services.shield import check_input
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 corpus = LegalCorpus(DATA_DIR / "legal_corpus.json")
 procedure_data = json.loads((DATA_DIR / "procedures.json").read_text(encoding="utf-8"))
 court_data = json.loads((DATA_DIR / "courts.json").read_text(encoding="utf-8"))
