@@ -37,7 +37,8 @@ def health() -> dict:
         "ai_assist_configured": bool(__import__("os").getenv("GEMINI_API_KEY") or __import__("os").getenv("GOOGLE_API_KEY")),
         "corpus_documents": len(corpus.documents),
         "ollama": {"available": False, "configured_model": "not-enabled", "models": []},
-        "case_storage": "unavailable",
+        "case_storage": "encrypted_browser_only",
+        "case_storage_note": "The hosted API cannot read or store private browser vault records. No cross-device sync.",
         "notice": "Public demo only. Do not submit private or identifying case information.",
     }
 
@@ -187,10 +188,10 @@ async def public_ai_assist(payload: PublicAssistRequest, request: Request) -> di
 )
 def unavailable_private_case_features(path: str) -> None:
     raise HTTPException(
-        status_code=503,
+        status_code=403,
         detail=(
-            "This public demo supports research and guides only. Private case "
-            "storage, AI case analysis, evidence, and documents require the "
-            "authenticated local or persistent backend."
+            "Private cases, evidence and drafts are deliberately stored in "
+            "the user's encrypted browser vault, not on this public API. "
+            "Open the Pramaan Bot website and unlock the local vault."
         ),
     )
