@@ -1,10 +1,11 @@
+import { removeCase } from '../secureVault'
 import {
   AlertCircle, ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronRight,
   Clock3, Coins, Download, FilePenLine, FileText, FolderOpen, Globe2, Home,
   LockKeyhole, MessageSquareText, Paperclip, Send, ShieldCheck, UploadCloud,
 } from 'lucide-react'
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { API_URL, api } from '../api'
 import { EmptyState, ErrorBanner, Loading } from '../components'
 import { localStore } from '../store'
@@ -30,6 +31,8 @@ function savedOriginal(item: Evidence) {
 
 export default function Workspace() {
   const params = useParams()
+  const navigate = useNavigate()
+  const [aiConsent, setAiConsent] = useState(false)
   const caseId = params.caseId || localStore.getCaseId()
   const [caseRecord, setCaseRecord] = useState<CaseRecord | null>(null)
   const [analysis, setAnalysis] = useState<Analysis | null>(localStore.getAnalysis(caseId))
@@ -66,6 +69,7 @@ export default function Workspace() {
     try {
       const result = await api.analyze(caseId, message, caseRecord.language)
       setAnalysis(result)
+      setShowGuidance(true)
       localStore.setAnalysis(caseId, result)
       setNotice('')
       setMessage('')
@@ -76,6 +80,35 @@ export default function Workspace() {
     } finally {
       setBusy(false)
     }
+  }
+
+  // External AI is explicitly opt-in: no case description or evidence is sent.
+  const submitAI = async () => {
+    if (!import.meta.env.PROD || !aiConsent || !caseId || !caseRecord || !message.trim()) return
+    setBusy(true)
+    setError('')
+    try {
+      const result = await api.assist(caseId, message.trim(), caseRecord.language)
+      setAnalysis(result)
+      setShowGuidance(true)
+      localStore.setAnalysis(caseId, result)
+      setMessage('')
+      setAiConsent(false)
+      setNotice('Only the consented generic question was sent to Gemini. No case records or evidence were uploaded.')
+      setTab('overview')
+    } catch (err) { setError((err as Error).message) }
+    finally { setBusy(false) }
+  }
+
+  const deletePrivateCase = async () => {
+    if (!caseId || !import.meta.env.PROD) return
+    if (!window.confirm('Permanently delete this case and its encrypted evidence, drafts and history from THIS browser? Backups are not affected.')) return
+    try {
+      await removeCase(caseId)
+      localStore.setCaseId('')
+      localStore.clearAnalysis()
+      navigate('/')
+    } catch (err) { setError((err as Error).message) }
   }
 
   const upload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +188,7 @@ export default function Workspace() {
         <div className="case-heading-actions">
           <span className={`urgency ${caseRecord.urgency}`}><AlertCircle size={14} /> {caseRecord.urgency} urgency</span>
           <button className="button secondary" onClick={() => { setError(''); setEditing(true) }}><FilePenLine size={17} /> Edit case</button>
+          {import.meta.env.PROD && <button type="button" className="button secondary" onClick={() => void deletePrivateCase()}>Delete local case</button>}
           <Link className="button primary" to="/drafts"><FilePenLine size={17} /> Prepare notice <ArrowRight size={17} /></Link>
         </div>
       </div>
@@ -214,13 +248,13 @@ export default function Workspace() {
           {tab === 'evidence' && <section className="panel case-card tab-card">
             <div className="case-card-title"><span className="case-icon"><Paperclip size={21} /></span><h2>Evidence register</h2><button className="button secondary" onClick={() => fileInput.current?.click()} disabled={uploading}><UploadCloud size={16} /> Add file</button></div>
             <p className="muted">Files stay on this device. A hash records whether a saved file changes; it does not prove the file is authentic or that its contents are true.</p>
-            {evidence.length ? <div className="case-list-simple">{evidence.map((item) => <div key={item.id}><FileText size={20} /><div><strong>{item.filename}</strong><span>{dateLabel(item.created_at)} · {savedOriginal(item) ? 'Original stored locally' : 'Older metadata-only record'}</span></div>{savedOriginal(item) && <a href={api.evidenceFileUrl(caseId, item.id)} aria-label={`Download ${item.filename}`}><Download size={18} /></a>}</div>)}</div> : <div className="case-empty"><Paperclip size={25} /><strong>No files saved yet</strong><span>Add the agreement, payment proof, messages, or other material you want to keep with this case.</span></div>}
+            {evidence.length ? <div className="case-list-simple">{evidence.map((item) => <div key={item.id}><FileText size={20} /><div><strong>{item.filename}</strong><span>{dateLabel(item.created_at)} · {savedOriginal(item) ? 'Original stored locally' : 'Older metadata-only record'}</span></div>{savedOriginal(item) && (import.meta.env.PROD ? <button type="button" className="button secondary" onClick={() => { try { api.downloadEvidence(caseId, item.id) } catch(e) { setError((e as Error).message) } }} aria-label={`Download ${item.filename}`}><Download size={18} /></button> : <a href={api.evidenceFileUrl(caseId, item.id)} aria-label={`Download ${item.filename}`}><Download size={18} /></a>)}</div>)}</div> : <div className="case-empty"><Paperclip size={25} /><strong>No files saved yet</strong><span>Add the agreement, payment proof, messages, or other material you want to keep with this case.</span></div>}
           </section>}
 
           {tab === 'documents' && <section className="panel case-card tab-card">
             <div className="case-card-title"><span className="case-icon"><FilePenLine size={21} /></span><h2>Document drafts</h2><Link className="button secondary" to="/drafts">Prepare draft <ArrowRight size={16} /></Link></div>
             <p className="muted">Drafts use your saved account. Check every date, amount, name, legal claim, and requested relief before sending.</p>
-            {drafts.length ? <div className="case-list-simple">{drafts.map((item) => <div key={item.id}><FileText size={20} /><div><strong>{item.title}</strong><span>Created {dateLabel(item.created_at)} · draft, not filed</span></div><a href={`${API_URL}/drafts/${item.id}/pdf`} aria-label={`Download ${item.title}`}><Download size={18} /></a></div>)}</div> : <div className="case-empty"><FileText size={25} /><strong>No drafts yet</strong><span>Prepare a notice or application once the account and requested relief are clear.</span></div>}
+            {drafts.length ? <div className="case-list-simple">{drafts.map((item) => <div key={item.id}><FileText size={20} /><div><strong>{item.title}</strong><span>Created {dateLabel(item.created_at)} · draft, not filed</span></div>{import.meta.env.PROD ? <button type="button" className="button secondary" onClick={() => void api.downloadDraftPdf(item.id).catch(e => setError((e as Error).message))} aria-label={`Download ${item.title}`}><Download size={18} /></button> : <a href={`${API_URL}/drafts/${item.id}/pdf`} aria-label={`Download ${item.title}`}><Download size={18} /></a>}</div>)}</div> : <div className="case-empty"><FileText size={25} /><strong>No drafts yet</strong><span>Prepare a notice or application once the account and requested relief are clear.</span></div>}
           </section>}
 
           {tab === 'activity' && <section className="panel case-card tab-card">
