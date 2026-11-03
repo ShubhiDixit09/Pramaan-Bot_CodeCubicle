@@ -80,9 +80,9 @@ export default function App() {
             ))}
           </nav>
           <div className="header-actions">
-            <span className="header-privacy" title="Case data remains on this device">
+            <span className="header-privacy" title={import.meta.env.DEV ? "Case data remains on your local backend" : "Public demonstration — configure a secure backend before handling case data"}>
               <ShieldCheck size={17} />
-              Local &amp; secure
+              {import.meta.env.DEV ? 'Local & secure' : 'Public prototype'}
             </span>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function App() {
           </div>
           <div className="status-cluster">
             <span className={`status-dot ${health}`} />
-            <span>{health === 'online' ? 'Local workspace ready' : health === 'offline' ? 'API offline' : 'Checking API'}</span>
+            <span>{health === 'online' ? 'API connected' : health === 'offline' ? 'API offline' : 'Checking API'}</span>
             <span className="divider" />
             <CircleGauge size={16} />
             <span>{ollama ? 'Gemma connected' : 'Safe fallback mode'}</span>
@@ -103,6 +103,11 @@ export default function App() {
       </header>
       <div className="main-column">
         <main id="main-content">
+          {!import.meta.env.DEV && health === 'offline' && (
+            <div role="alert" style={{ margin: '1rem 1.5rem', padding: '1rem', border: '1px solid #a87e39', borderRadius: '0.5rem' }}>
+              Backend not connected. This is a public demonstration interface, not a private legal workspace. Do not enter personal or case information until the secure backend is configured.
+            </div>
+          )}
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/cases/new" element={<NewCase />} />
@@ -125,7 +130,7 @@ export default function App() {
             <Link to="/research">Legal sources</Link>
             <span>Legal information, not legal advice</span>
           </div>
-          <div className="footer-status"><ShieldCheck size={16} /> Case data remains on this device</div>
+          <div className="footer-status"><ShieldCheck size={16} /> {import.meta.env.DEV ? "Local data stays on your computer" : "Do not submit confidential case data in this public demo"}</div>
         </footer>
       </div>
     </div>
