@@ -124,11 +124,11 @@ export default function NewCase() {
             </div>
           </div>
           <button className="button primary wide" disabled={busy}>
-            {busy ? 'Creating private workspace…' : 'Create case workspace'} <ArrowRight size={18} />
+            {busy ? 'Creating encrypted case…' : 'Create case workspace'} <ArrowRight size={18} />
           </button>
         </div>
         <aside className="form-aside">
-          <div className="aside-card"><LockKeyhole size={21} /><div><strong>Stored locally</strong><span>Your facts are written to the SQLite database on this machine.</span></div></div>
+          <div className="aside-card"><LockKeyhole size={21} /><div><strong>Stored locally</strong><span>{import.meta.env.PROD ? 'Your facts are encrypted in IndexedDB in this browser; they never go to a public case API.' : 'Your facts are written to the SQLite database on this machine.'}</span></div></div>
           <div className="aside-card"><MessageSquareText size={21} /><div><strong>Plain language works</strong><span>“Landlord deposit nahi de raha” is enough to begin.</span></div></div>
         </aside>
       </form>
