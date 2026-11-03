@@ -2,7 +2,7 @@ import type { Analysis, CaseRecord, Citation, Procedure } from './types'
 import {
   listCases, readCase, addCase, editCase, saveEvidence, downloadEvidence,
   addDraft, downloadDraftPdf, localAnalysis, templates, startGuide,
-  markGuideStep, searchLocalLaws, saveAnalysis
+  markGuideStep, getSavedGuide, searchLocalLaws, saveAnalysis
 } from './secureVault'
 
 // Production keeps private data encrypted in the user's browser, while only
@@ -73,6 +73,7 @@ export const api = {
       '/research?query=' + encodeURIComponent(query),
     ),
   procedures: () => import.meta.env.PROD ? Promise.resolve(templates) : request<Procedure[]>('/procedures'),
+  savedGuide: (caseId: string) => import.meta.env.PROD ? getSavedGuide(caseId) : Promise.resolve(null as Procedure | null),
   startProcedure: (caseId: string, procedureId: string) =>
     import.meta.env.PROD ? startGuide(caseId, procedureId) :
       request<Procedure>('/cases/' + caseId + '/procedures', {
