@@ -26,15 +26,15 @@ export default function Research() {
   return (
     <>
       <PageHeader
-        eyebrow="Offline statutory corpus"
+        eyebrow={import.meta.env.PROD ? "Curated public legal corpus" : "Offline statutory corpus"}
         title="Research the applicable law."
-        description="Search by meaning. PRAMAAN BOT ranks matching Acts and then the most relevant provisions."
+        description={import.meta.env.PROD ? "Browse a small curated reference corpus using TF-IDF source ranking. This is not live law verification or AI-generated legal advice. Enter only generic questions, without personal information." : "Search by meaning. PRAMAAN BOT ranks matching Acts and then the most relevant provisions."}
       />
       {error && <ErrorBanner message={error} />}
       <form className="search-bar" onSubmit={submit}>
         <Search size={20} />
         <input required minLength={2} placeholder="e.g. seller refused refund for defective product" value={query} onChange={(e) => setQuery(e.target.value)} />
-        <button className="button primary" disabled={busy}>{busy ? 'Searching…' : 'Search locally'}</button>
+        <button className="button primary" disabled={busy}>{busy ? 'Searching…' : (import.meta.env.PROD ? 'Search sources' : 'Search locally')}</button>
       </form>
       <div className="research-list">
         {results.map((item) => (
@@ -44,7 +44,8 @@ export default function Research() {
               <div className="law-heading"><span>{item.act}</span><strong>{item.section}</strong></div>
               <h2>{item.title}</h2>
               <p>{item.text}</p>
-              <div className="law-meta"><span>{item.jurisdiction}</span><span>{item.relevance}% relevance</span><span>Local corpus</span></div>
+              <div className="law-meta"><span>{item.jurisdiction}</span><span>{item.relevance}% relevance</span><span>{import.meta.env.PROD ? "Curated public corpus" : "Local corpus"}</span></div>
+              {item.source_url && <a href={item.source_url} target="_blank" rel="noreferrer">Read source document</a>}
             </div>
           </article>
         ))}
