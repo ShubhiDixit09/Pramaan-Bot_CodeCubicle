@@ -405,51 +405,65 @@ export function markGuideStep(runId:string,stepId:string,done:boolean):Promise<P
 type LocalLaw=typeof corpus[number]
 const laws=corpus as LocalLaw[]
 const tokenize=(text:string)=>text.toLocaleLowerCase().match(/[\p{L}\p{N}]{2,}/gu)||[]
+const STOP=new Set(['the','and','for','with','what','why','how','who','when','where','does','did','say','about','have','they','this','that','are','is','was','were','from','their','your','would','could','can','should','under','indian','law','legal','laws','act','acts','case','cases','section','sections','rights','right'])
+const normalize=(word:string)=>{
+  if(word.length>5&&word.endsWith('ies'))return word.slice(0,-3)+'y'
+  if(word.length>4&&word.endsWith('s'))return word.slice(0,-1)
+  return word
+}
+const tokens=(s:string)=>new Set(tokenize(s).map(normalize))
 export function searchLocalLaws(question:string,limit=5):Citation[]{
-  const words=[...new Set(tokenize(question))]
+  const words=[...new Set(tokenize(question).map(normalize).filter(x=>!STOP.has(x)))]
   if(!words.length)return []
   const ranked=laws.map((law)=>{
-    const terms=tokenize([law.act,law.section,law.title,law.text,law.keywords,law.jurisdiction].join(' '))
-    const termSet=new Set(terms)
-    const overlaps=words.reduce((n,w)=>n+(termSet.has(w)?1:0),0)
-    const score=words.length?overlaps/words.length:0
+    const act=tokens(law.act),title=tokens(law.title),keywords=tokens(law.keywords)
+    const body=tokens(law.text),domain=tokens(law.domains.join(' ')+' '+law.issues.join(' '))
+    const score=words.reduce((n,w)=>n+
+      (act.has(w)?3.5:0)+(title.has(w)?2.6:0)+(keywords.has(w)?2.6:0)+
+      (domain.has(w)?2.2:0)+(body.has(w)?1:0),0)
     return {law,score}
   }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,limit)
+  const maximum=Math.max(...ranked.map(x=>x.score),1)
   return ranked.map(({law,score})=>({
     id:law.id,act:law.act,section:law.section,title:law.title,
     text:law.text,jurisdiction:law.jurisdiction,source_url:law.source_url,
-    relevance:Math.round(score*100),support_level:'contextual'
+    // Normalized relative retrieval rank, NOT legal correctness probability.
+    relevance:Math.round(score/maximum*100),support_level:'contextual'
   }))
 }
 export function localAnalysis(caseId:string,question:string):Promise<Analysis>{
   return mutate(next=>{
-    requireCase(next,caseId)
+    const record=requireCase(next,caseId)
     if(!question.trim())throw new Error('Enter a legal research question.')
-    const sources=searchLocalLaws(question)
+    // Matching against the encrypted case description is entirely local,
+    // never sent to the public research or Gemini endpoints.
+    const localQuery=[question,record.title,record.description.slice(0,500)].join(' ')
+    const sources=searchLocalLaws(localQuery)
     const answer=sources.length
-      ? 'The following provisions appear relevant to your question according to the small local corpus. These matches are not a finding about your case:\n\n'
+      ? 'For your saved case "'+record.title+'", these local source provisions appear potentially relevant to the account you recorded. This is NOT a factual or legal finding:\n\n'
         +sources.map((c,i)=>(i+1)+'. '+c.act+' — '+c.section+': '+c.text).join('\n\n')
       : 'The small local corpus does not contain enough matching material for this question. Seek assistance from a qualified advocate or legal aid office.'
     const result:Analysis={
-      intent:{domain:'general',issue:'source_search',confidence:0},
-      answer:answer+'\n\nThis is general legal information from an unverified educational corpus, not advice from a lawyer.',
+      intent:{domain:'general',issue:'local_case_context_source_search',confidence:0},
+      answer:answer+'\n\nThis is general legal information from a small educational corpus, not advice from a lawyer.',
       next_steps:[
         'Check the current official text and effective dates of the cited provisions.',
-        'Review your own documents and factual timeline; they were not checked by this search.',
-        'Seek qualified legal advice before filing a notice or complaint.'
+        'Confirm your saved facts against actual documents; this search did not verify them.',
+        'Consult a qualified lawyer or legal aid office before filing a notice or complaint.'
       ],
       citations:sources,
-      guardrails:{allowed:true,legal_topic:true,injection_detected:false,masked_text:'[Local query — never sent to a server]',pii_types:[],findings:[]},
+      guardrails:{allowed:true,legal_topic:true,injection_detected:false,masked_text:'[Local case-context search; no data sent to a server]',pii_types:[],findings:[]},
       trust_report:{
         score:0,citation_coverage:0,grounding_score:0,pii_safe:true,disclaimer_present:true,
-        findings:['Source matches are not independently validated legal advice.','No case documents were analysed.','No generative AI was used.']
+        findings:['Matching uses case text stored in this browser only.','Source matches and case facts have not been independently validated.','No generative AI was used.']
       },
-      model_mode:'offline-source-search'
+      model_mode:'offline-case-source-search'
     }
     next.analyses[caseId]=result
     return result
   })
 }
+
 export function getSavedAnalysis(caseId:string|null):Analysis|null{
   return caseId&&data?.analyses[caseId]||null
 }
