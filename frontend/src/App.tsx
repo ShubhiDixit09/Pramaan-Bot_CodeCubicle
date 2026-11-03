@@ -1,3 +1,4 @@
+import SecureGate from './components/SecureGate'
 import {
   Accessibility,
   CircleGauge,
@@ -48,6 +49,7 @@ function PublicLanding() {
 export default function App() {
   const [health, setHealth] = useState<'checking' | 'online' | 'offline'>('checking')
   const [ollama, setOllama] = useState(false)
+  const [aiReady, setAiReady] = useState(false)
   const location = useLocation()
   const isPublicDemo = import.meta.env.PROD
   const currentPage = navigation.find((item) => item.to !== '/' && location.pathname.startsWith(item.to))?.label || (location.pathname.startsWith('/workspace') ? 'Case workspace' : 'Overview')
@@ -58,6 +60,7 @@ export default function App() {
       .then((result) => {
         setHealth('online')
         setOllama(result.ollama.available)
+        setAiReady(Boolean(result.ai_assist_configured))
       })
       .catch(() => setHealth('offline'))
   }, [])
@@ -86,7 +89,7 @@ export default function App() {
             </span>
           </Link>
           <nav className="primary-nav" aria-label="Primary navigation">
-            {navigation.filter(({ to }) => !isPublicDemo || ['/', '/research', '/procedures'].includes(to)).map(({ to, label }) => (
+            {navigation.map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -100,7 +103,7 @@ export default function App() {
           <div className="header-actions">
             <span className="header-privacy" title={import.meta.env.DEV ? "Case data remains on your local backend" : "Public demonstration — configure a secure backend before handling case data"}>
               <ShieldCheck size={17} />
-              {import.meta.env.DEV ? 'Local & secure' : 'Research-only preview'}
+              {import.meta.env.DEV ? 'Local & secure' : 'Encrypted on this device'}
             </span>
           </div>
         </div>
@@ -112,29 +115,33 @@ export default function App() {
           </div>
           <div className="status-cluster">
             <span className={`status-dot ${health}`} />
-            <span>{health === 'online' ? (isPublicDemo ? 'Research API connected' : 'API connected') : health === 'offline' ? 'API offline' : 'Checking API'}</span>
+            <span>{health === 'online' ? (isPublicDemo ? 'Public legal research online' : 'API connected') : health === 'offline' ? 'Research API offline' : 'Checking API'}</span>
             <span className="divider" />
             <CircleGauge size={16} />
-            <span>{ollama ? 'Gemma connected' : isPublicDemo ? 'No generative AI' : 'Safe fallback mode'}</span>
+            <span>{ollama ? 'Gemma connected' : isPublicDemo ? (aiReady ? 'Optional Gemini assistant' : 'Offline source analysis') : 'Safe fallback mode'}</span>
           </div>
         </div>
       </header>
       <div className="main-column">
         <main id="main-content">
-          {isPublicDemo && (
+          {isPublicDemo && location.pathname === '/research' && (
             <div role="status" style={{ margin: '1rem 1.5rem', padding: '1rem', border: '1px solid #a87e39', borderRadius: '0.5rem' }}>
-              Public research preview: only the curated legal corpus and action guides are available.
-              Private case files, uploads, document drafting and AI analysis require the authenticated local service.
-              Do not submit personal information.
+              Public source search: results come from a small curated corpus. Case files, evidence and drafts use a separate password-encrypted browser vault.
+              Google Gemini is called only after a specific consent action with a generic question. Never enter private case details into public search.
               {health === 'offline' ? ' The research API is currently unavailable.' : ''}
             </div>
           )}
           {isPublicDemo ? (
             <Routes>
-              <Route path="/" element={<PublicLanding />} />
+              <Route path="/" element={<SecureGate><Dashboard /></SecureGate>} />
+              <Route path="/cases/new" element={<SecureGate><NewCase /></SecureGate>} />
+              <Route path="/workspace" element={<SecureGate><Workspace /></SecureGate>} />
+              <Route path="/workspace/:caseId" element={<SecureGate><Workspace /></SecureGate>} />
               <Route path="/research" element={<Research />} />
-              <Route path="/procedures" element={<Procedures />} />
-              <Route path="*" element={<Navigate to="/research" replace />} />
+              <Route path="/procedures" element={<SecureGate><Procedures /></SecureGate>} />
+              <Route path="/drafts" element={<SecureGate><Drafts /></SecureGate>} />
+              <Route path="/trust" element={<SecureGate><Trust /></SecureGate>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           ) : (
           <Routes>
@@ -160,7 +167,7 @@ export default function App() {
             <Link to="/research">Legal sources</Link>
             <span>Legal information, not legal advice</span>
           </div>
-          <div className="footer-status"><ShieldCheck size={16} /> {import.meta.env.DEV ? "Local data stays on your computer" : "Do not submit confidential case data in this public demo"}</div>
+          <div className="footer-status"><ShieldCheck size={16} /> {import.meta.env.DEV ? "Local data stays on your computer" : "Case files and evidence remain encrypted in this browser"}</div>
         </footer>
       </div>
     </div>
