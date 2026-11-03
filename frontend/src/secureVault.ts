@@ -315,24 +315,68 @@ export async function downloadDraftPdf(draftId:string):Promise<void>{
   const d=unlocked().drafts.find(x=>x.id===draftId)
   if(!d)throw new Error('Draft not found.')
   if(/[\u0900-\u097f]/.test(d.content)){
-    // The bundled PDF font lacks Devanagari glyphs; browser print preserves fonts.
+    // Browser-native print preserves Hindi glyphs. Users may Save as PDF.
     const popup=window.open('','_blank')
-    if(!popup)throw new Error('Allow popups to print this Hindi draft to PDF.')
+    if(!popup)throw new Error('Allow popups to print this Hindi draft as PDF.')
     const escape=(s:string)=>s.replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]||x))
     popup.document.write('<!doctype html><html><head><title>'+escape(d.title)+'</title><style>body{margin:2cm;font:12pt system-ui;white-space:pre-wrap}</style></head><body>'+escape(d.content)+'</body></html>')
     popup.document.close();popup.focus();popup.print()
     return
   }
-  const {jsPDF}=await import('jspdf')
-  const doc=new jsPDF({format:'a4',unit:'mm'})
-  const content=doc.splitTextToSize(d.content,170) as string[]
-  let y=22
-  doc.setFont('helvetica','normal');doc.setFontSize(11)
-  for(const line of content){
-    if(y>273){doc.addPage();y=22}
-    doc.text(line,20,y);y+=6
+  // Minimal, entirely local PDF writer for English case documents.
+  // Does not load any third-party library or transmit content to a server.
+  const plain=d.content
+    .replace(/[\u2018\u2019]/g,"'")
+    .replace(/[\u201c\u201d]/g,'"')
+    .replace(/[\u2013\u2014]/g,'-')
+    .replace(/₹/g,'Rs ')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^\x20-\x7e\n]/g,'?')
+  const rows:string[]=[]
+  for(const row of plain.split('\n')){
+    const words=row.split(/\s+/)
+    if(!row.trim()){rows.push('');continue}
+    let current=''
+    for(const word of words){
+      if(!word)continue
+      if(current.length && (current.length+word.length+1)>88){
+        rows.push(current);current=''
+      }
+      if(word.length>88){
+        if(current){rows.push(current);current=''}
+        for(let j=0;j<word.length;j+=88)rows.push(word.slice(j,j+88))
+      }else current+=(current?' ':'')+word
+    }
+    if(current)rows.push(current)
   }
-  doc.save('pramaan-'+d.document_type+'-'+d.id.slice(0,8)+'.pdf')
+  const pageRows:string[][]=[]
+  for(let i=0;i<rows.length;i+=53)pageRows.push(rows.slice(i,i+53))
+  if(!pageRows.length)pageRows.push([])
+  const objects:string[]=[]
+  objects[1]='<< /Type /Catalog /Pages 2 0 R >>'
+  const pageRefs=pageRows.map((_,i)=>(4+i*2)+' 0 R').join(' ')
+  objects[2]='<< /Type /Pages /Kids [ '+pageRefs+' ] /Count '+pageRows.length+' >>'
+  objects[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'
+  const quote=(x:string)=>x.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')
+  for(let i=0;i<pageRows.length;i++){
+    const pageId=4+i*2,streamId=pageId+1
+    const operations='BT /F1 10 Tf 48 786 Td 13 TL\n'
+      +pageRows[i].map(line=>'('+quote(line)+') Tj T*').join('\n')+'\nET'
+    objects[pageId]='<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents '+streamId+' 0 R >>'
+    objects[streamId]='<< /Length '+operations.length+' >>\nstream\n'+operations+'\nendstream'
+  }
+  let out='%PDF-1.4\n'
+  const offsets:number[]=[0]
+  for(let i=1;i<objects.length;i++){
+    offsets[i]=out.length
+    out+=i+' 0 obj\n'+objects[i]+'\nendobj\n'
+  }
+  const xref=out.length
+  out+='xref\n0 '+objects.length+'\n0000000000 65535 f \n'
+  for(let i=1;i<objects.length;i++)out+=offsets[i].toString().padStart(10,'0')+' 00000 n \n'
+  out+='trailer\n<< /Size '+objects.length+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n'
+  downloadBlob(new Blob([out],{type:'application/pdf'}),'pramaan-'+d.document_type+'-'+d.id.slice(0,8)+'.pdf')
 }
 
 export const templates=guideTemplates as Procedure[]
