@@ -40,12 +40,12 @@ export default function Drafts() {
             <div className="field"><label>Document type</label><select value={form.document_type} onChange={(e) => setForm({ ...form, document_type: e.target.value })}><option value="legal_notice">Legal notice</option><option value="fir_complaint">Police complaint</option><option value="rti_application">RTI application</option><option value="consumer_complaint">Consumer complaint</option></select></div>
             <div className="field"><label>Recipient</label><input value={form.recipient} onChange={(e) => setForm({ ...form, recipient: e.target.value })} /></div>
             <div className="field"><label>Relief requested</label><textarea rows={4} value={form.requested_relief} onChange={(e) => setForm({ ...form, requested_relief: e.target.value })} /></div>
-            <button className="button primary"><FileText size={18} /> Generate local draft</button>
+            <button className="button primary"><FileText size={18} /> Create encrypted local draft</button>
           </form>
           <section className="panel document-preview">
             {draft ? (
               <>
-                <div className="preview-header"><div><span className="eyebrow">Draft preview</span><h2>{draft.title}</h2></div><a className="button secondary" href={`${API_URL}/drafts/${draft.id}/pdf`}><Download size={17} /> PDF</a></div>
+                <div className="preview-header"><div><span className="eyebrow">Draft preview</span><h2>{draft.title}</h2></div>{import.meta.env.PROD ? <button type="button" className="button secondary" onClick={() => void api.downloadDraftPdf(draft.id).catch(e => setError((e as Error).message))}><Download size={17} /> Download PDF</button> : <a className="button secondary" href={`${API_URL}/drafts/${draft.id}/pdf`}><Download size={17} /> PDF</a>}</div>
                 <pre>{draft.content}</pre>
               </>
             ) : (
